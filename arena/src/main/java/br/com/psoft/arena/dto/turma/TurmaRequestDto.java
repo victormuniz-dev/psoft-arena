@@ -1,4 +1,4 @@
-package br.com.psoft.arena.dtos.turma;
+package br.com.psoft.arena.dto.turma;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,12 +1,12 @@
-package br.com.psoft.arena.services.projessor;
+package br.com.psoft.arena.service.projessor;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
-import br.com.psoft.arena.models.professor.ProfessorModel;
-import br.com.psoft.arena.repositories.professor.ProfessorRepository;
 import br.com.psoft.arena.exception.ResourceNotFoundException;
+import br.com.psoft.arena.model.professor.ProfessorModel;
+import br.com.psoft.arena.repository.professor.ProfessorRepository;
 
 @Service
 @RequiredArgsConstructor

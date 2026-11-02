@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:arena/src/main/java/br/com/psoft/arena/models/estudante/EstudanteModel.java
 package br.com.psoft.arena.models.estudante;
+========
+package br.com.psoft.arena.model;
+>>>>>>>> 1b553ec (feat(US3): implementa gestão de estratégias de avaliação e exceções customizadas):arena/src/main/java/br/com/psoft/arena/model/Estudante.java
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,7 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "estudantes")
-public class EstudanteModel {
+public class Estudante {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

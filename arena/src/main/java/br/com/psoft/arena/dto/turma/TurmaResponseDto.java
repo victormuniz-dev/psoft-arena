@@ -1,7 +1,7 @@
-package br.com.psoft.arena.dtos.turma;
+package br.com.psoft.arena.dto.turma;
 
-import br.com.psoft.arena.models.turma.StatusTurma;
-import br.com.psoft.arena.models.turma.TurmaModel;
+import br.com.psoft.arena.model.turma.StatusTurma;
+import br.com.psoft.arena.model.turma.TurmaModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

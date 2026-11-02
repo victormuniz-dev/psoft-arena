@@ -1,4 +1,4 @@
-package br.com.psoft.arena.models.professor;
+package br.com.psoft.arena.model.professor;
 
 import lombok.Getter;
 import lombok.Setter;

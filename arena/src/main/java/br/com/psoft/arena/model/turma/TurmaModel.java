@@ -1,4 +1,4 @@
-package br.com.psoft.arena.models.turma;
+package br.com.psoft.arena.model.turma;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +15,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+<<<<<<< HEAD:arena/src/main/java/br/com/psoft/arena/models/turma/TurmaModel.java
+=======
+import br.com.psoft.arena.exception.BusinessRuleException;
+import br.com.psoft.arena.model.professor.ProfessorModel;
+>>>>>>> 1b553ec (feat(US3): implementa gestão de estratégias de avaliação e exceções customizadas):arena/src/main/java/br/com/psoft/arena/model/turma/TurmaModel.java
 
 @Entity
 @Table(name = "tb_turma")

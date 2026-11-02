@@ -1,4 +1,4 @@
-package br.com.psoft.arena.models.turma;
+package br.com.psoft.arena.model.turma;
 
 public enum StatusTurma {
     ATIVA,

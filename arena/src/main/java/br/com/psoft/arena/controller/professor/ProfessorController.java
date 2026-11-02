@@ -1,16 +1,16 @@
-package br.com.psoft.arena.controllers.professor;
+package br.com.psoft.arena.controller.professor;
 
 import java.net.URI;
 import java.util.List;
 
-import br.com.psoft.arena.dtos.professor.ProfessorResponseDto;
-import br.com.psoft.arena.dtos.professor.ProfessorRequestDto;
-import br.com.psoft.arena.models.professor.ProfessorModel;
+import br.com.psoft.arena.dto.professor.ProfessorRequestDto;
+import br.com.psoft.arena.dto.professor.ProfessorResponseDto;
+import br.com.psoft.arena.model.professor.ProfessorModel;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import br.com.psoft.arena.services.projessor.ProfessorService;
+import br.com.psoft.arena.service.projessor.ProfessorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

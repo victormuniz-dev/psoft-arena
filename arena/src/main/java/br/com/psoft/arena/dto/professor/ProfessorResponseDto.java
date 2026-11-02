@@ -1,6 +1,6 @@
-package br.com.psoft.arena.dtos.professor;
+package br.com.psoft.arena.dto.professor;
 
-import br.com.psoft.arena.models.professor.ProfessorModel;
+import br.com.psoft.arena.model.professor.ProfessorModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

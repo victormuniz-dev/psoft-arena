@@ -1,4 +1,4 @@
-package br.com.psoft.arena.dtos.professor;
+package br.com.psoft.arena.dto.professor;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

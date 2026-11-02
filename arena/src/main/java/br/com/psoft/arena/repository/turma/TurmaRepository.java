@@ -1,8 +1,9 @@
-package br.com.psoft.arena.repositories.turma;
+package br.com.psoft.arena.repository.turma;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
-import br.com.psoft.arena.models.turma.TurmaModel;
+
+import br.com.psoft.arena.model.turma.TurmaModel;
 
 public interface TurmaRepository extends JpaRepository<TurmaModel, Long> {
 
