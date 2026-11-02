@@ -1,4 +1,4 @@
-package br.com.psoft.arena.models;
+package br.com.psoft.arena.models.estudante;
 
 import jakarta.persistence.*;
 
@@ -19,7 +19,6 @@ public class EstudanteModel {
     @Column(nullable = false)
     private String email;
 
-    
     public EstudanteModel() {}
 
     public EstudanteModel(String nome, String matricula, String email) {

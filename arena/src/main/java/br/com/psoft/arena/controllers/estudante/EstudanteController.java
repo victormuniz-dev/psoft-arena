@@ -1,8 +1,8 @@
-package br.com.psoft.arena.controllers;
+package br.com.psoft.arena.controllers.estudante;
 
-import br.com.psoft.arena.dtos.EstudanteDTO;
-import br.com.psoft.arena.models.EstudanteModel;
-import br.com.psoft.arena.services.EstudanteService;
+import br.com.psoft.arena.dtos.estudante.EstudanteDTO;
+import br.com.psoft.arena.models.estudante.EstudanteModel;
+import br.com.psoft.arena.services.estudante.EstudanteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

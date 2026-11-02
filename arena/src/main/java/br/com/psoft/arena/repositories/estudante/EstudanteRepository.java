@@ -1,6 +1,6 @@
-package br.com.psoft.arena.repositories;
+package br.com.psoft.arena.repositories.estudante;
 
-import br.com.psoft.arena.models.EstudanteModel;
+import br.com.psoft.arena.models.estudante.EstudanteModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

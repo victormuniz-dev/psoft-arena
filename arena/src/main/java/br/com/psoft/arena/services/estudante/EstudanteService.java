@@ -1,8 +1,8 @@
-package br.com.psoft.arena.services;
+package br.com.psoft.arena.services.estudante;
 
-import br.com.psoft.arena.dtos.EstudanteDTO;
-import br.com.psoft.arena.models.EstudanteModel;
-import br.com.psoft.arena.repositories.EstudanteRepository;
+import br.com.psoft.arena.dtos.estudante.EstudanteDTO;
+import br.com.psoft.arena.models.estudante.EstudanteModel;
+import br.com.psoft.arena.repositories.estudante.EstudanteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
