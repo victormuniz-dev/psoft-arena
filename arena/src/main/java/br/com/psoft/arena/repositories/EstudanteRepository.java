@@ -1,12 +1,12 @@
-package com.psoft.arena.repository;
+package br.com.psoft.arena.repositories;
 
-import com.psoft.arena.model.EstudanteModel;
+import br.com.psoft.arena.models.EstudanteModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface EstudanteRepository extends JpaRepository<Estudante, Long> {
-    Optional<Estudante> findByMatricula(String matricula);
+public interface EstudanteRepository extends JpaRepository<EstudanteModel, Long> {
+    Optional<EstudanteModel> findByMatricula(String matricula);
 }
