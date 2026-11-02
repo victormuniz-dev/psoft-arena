@@ -1,4 +1,4 @@
-package com.psoft.arena.models;
+package br.com.psoft.arena.models;
 
 import jakarta.persistence.*;
 
@@ -20,9 +20,9 @@ public class EstudanteModel {
     private String email;
 
     
-    public Estudante() {}
+    public EstudanteModel() {}
 
-    public Estudante(String nome, String matricula, String email) {
+    public EstudanteModel(String nome, String matricula, String email) {
         this.nome = nome;
         this.matricula = matricula;
         this.email = email;

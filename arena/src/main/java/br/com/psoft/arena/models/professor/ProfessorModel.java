@@ -5,8 +5,6 @@ import lombok.Setter;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.GeneratedValue;
@@ -21,9 +19,6 @@ public class ProfessorModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "professorResponsavel",
-        cascade = CascadeType.ALL
-    )
     @Column(name = "professor_nome", nullable = false)
     @Setter
     private String nome;
