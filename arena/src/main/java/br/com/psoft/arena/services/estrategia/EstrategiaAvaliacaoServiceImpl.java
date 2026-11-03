@@ -14,12 +14,21 @@ import br.com.psoft.arena.models.estrategia.TipoEstrategia;
 import br.com.psoft.arena.repositories.estrategia.EstrategiaAvaliacaoRepository;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Implementação da regra de negócio para a gestão de estratégias de avaliação.
+ * Concentra as validações de domínio, manipulação de persistência e conversões de DTOs.
+ */
 @Service
 @RequiredArgsConstructor
 public class EstrategiaAvaliacaoServiceImpl implements EstrategiaAvaliacaoService {
 
     private  final EstrategiaAvaliacaoRepository repository; 
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws ResourceNotFoundException Caso ocorra alguma inconsistência durante a persistência.
+     */
     @Override
     @Transactional 
     public EstrategiaAvaliacaoResponseDto cadastrar(EstrategiaAvaliacaoDto dto) {
@@ -35,6 +44,11 @@ public class EstrategiaAvaliacaoServiceImpl implements EstrategiaAvaliacaoServic
         
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws ResourceNotFoundException Se nenhuma estratégia for encontrada com o ID fornecido.
+     */
     @Override
     @Transactional(readOnly = true)
     public EstrategiaAvaliacaoResponseDto buscarPorId(Long id) {
@@ -43,6 +57,9 @@ public class EstrategiaAvaliacaoServiceImpl implements EstrategiaAvaliacaoServic
         return  EstrategiaAvaliacaoResponseDto.fromEntity(estrategia); 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional (readOnly = true)
     public List<EstrategiaAvaliacaoResponseDto> liestarTodos() {
@@ -51,6 +68,9 @@ public class EstrategiaAvaliacaoServiceImpl implements EstrategiaAvaliacaoServic
              .toList(); 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional (readOnly = true)
     public List<EstrategiaAvaliacaoResponseDto> listarPorTipo(TipoEstrategia tipo) {
@@ -59,6 +79,11 @@ public class EstrategiaAvaliacaoServiceImpl implements EstrategiaAvaliacaoServic
                 .toList(); 
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws ResourceNotFoundException Se a estratégia informada não existir.
+     */
     @Override
     @Transactional 
     public EstrategiaAvaliacaoResponseDto atualizar(long id, EstrategiaAvaliacaoDto dto) {
@@ -74,6 +99,11 @@ public class EstrategiaAvaliacaoServiceImpl implements EstrategiaAvaliacaoServic
         return  EstrategiaAvaliacaoResponseDto.fromEntity(repository.save(estrategia)); 
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws ResourceNotFoundException Se o ID fornecido não for localizado.
+     */
     @Override
     @Transactional 
     public EstrategiaAvaliacaoResponseDto atualizarPromt(Long id, PromptUpdateDto dto) {
@@ -83,16 +113,28 @@ public class EstrategiaAvaliacaoServiceImpl implements EstrategiaAvaliacaoServic
         return  EstrategiaAvaliacaoResponseDto.fromEntity(repository.save(estrategia)); 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Object buscarPorIds(List<Long> copyOf) {
         return repository.findAllById(copyOf);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws ResourceNotFoundException Se a entidade referente ao ID não for localizada.
+     */
     @Override
     public EstrategiaAvaliacaoModel buscarEntidadePorId(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Estratégia de Avaliação", id));
     }
+
+    /**
+     * {@inheritDoc}
+     */
 
     @Override
     public List<EstrategiaAvaliacaoModel> buscarEntidadesPorIds(List<Long> ids) {
