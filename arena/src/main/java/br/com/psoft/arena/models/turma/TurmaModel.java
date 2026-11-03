@@ -85,7 +85,7 @@ public class TurmaModel {
      * @param periodoLetivo Período letivo correspondente[cite: 7].
      * @param professorResponsavel Professor responsável pela turma[cite: 7].
      */
-    public TurmaModel(String nome, String codigo, String periodoLetivo, ProfessorModel professorResponsavel) {
+    public TurmaModel(String nome) {
         this.nome = nome;
         this.codigo = codigo;
         this.periodoLetivo = periodoLetivo;

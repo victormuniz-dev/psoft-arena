@@ -46,10 +46,7 @@ public class TurmaService {
         }
         ProfessorModel professor = professorService.buscarPorId(request.getProfessorId());
         TurmaModel turma = new TurmaModel(
-                request.getNome().trim(),
-                codigo,
-                request.getPeriodoLetivo().trim(),
-                professor);
+                request.getNome().trim());
         return TurmaResponseDto.de(turmaRepository.save(turma));
     }
 
