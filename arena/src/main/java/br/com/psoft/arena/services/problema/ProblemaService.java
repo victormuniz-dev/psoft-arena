@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import br.com.psoft.arena.exception.ResourceNotFoundException;
 import br.com.psoft.arena.models.problema.ProblemaModel;
 import br.com.psoft.arena.repositories.problema.ProblemaRepository;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
