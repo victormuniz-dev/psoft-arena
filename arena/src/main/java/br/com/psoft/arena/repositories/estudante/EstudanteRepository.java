@@ -1,10 +1,11 @@
-package br.com.psoft.arena.repositories;
+package br.com.psoft.arena.repositories.estudante;
 
-import br.com.psoft.arena.models.EstudanteModel;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import br.com.psoft.arena.models.estudante.EstudanteModel;
 
 @Repository
 public interface EstudanteRepository extends JpaRepository<EstudanteModel, Long> {

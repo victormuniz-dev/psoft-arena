@@ -8,23 +8,27 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class TurmaResponseDto {
+
     private Long id;
     private String nome;
     private String codigo;
     private String periodoLetivo;
-    private Long idProfessorResponsavel;
-    private String nomeProfessorResponsavel;
     private StatusTurma status;
+    private Long professorId;
+    private String professorNome;
+    private int totalEstudantes;
+    private int totalAtividades;
 
-    public static TurmaResponseDto from(TurmaModel turma) {
+    public static TurmaResponseDto de(TurmaModel turma) {
         return new TurmaResponseDto(
-            turma.getId(),
-            turma.getNome(), 
-            turma.getCodigo(),
-            turma.getPeriodoLetivo(),
-            turma.getProfessorResponsavel().getId(),
-            turma.getProfessorResponsavel().getNome(),
-            turma.getStatus()
-        );
-    }    
+                turma.getId(),
+                turma.getNome(),
+                turma.getCodigo(),
+                turma.getPeriodoLetivo(),
+                turma.getStatus(),
+                turma.getProfessorResponsavel().getId(),
+                turma.getProfessorResponsavel().getNome(),
+                turma.getEstudantes().size(),
+                turma.getAtividades().size());
+    }
 }

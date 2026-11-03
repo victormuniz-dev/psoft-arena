@@ -2,25 +2,24 @@ package br.com.psoft.arena.dtos.turma;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class TurmaRequestDto {
 
-    private Long id;
-
-    @NotBlank(message = "O nome não pode ser vazio.")
+    @NotBlank(message = "O nome é obrigatório")
     private String nome;
 
-    @NotBlank(message = "O código não pode ser vazio.")
+    @NotBlank(message = "O código é obrigatório")
     private String codigo;
 
-    @NotBlank(message = "O período não pode ser vazio.")
-    @NotNull
-    @Positive
-    private Integer periodo;
+    @NotBlank(message = "O período letivo é obrigatório")
+    private String periodoLetivo;
 
-    @NotNull
-    private Long idProfessorResponsavel;
+    @NotNull(message = "O professor responsável é obrigatório")
+    private Long professorId;
 }

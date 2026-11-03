@@ -1,4 +1,4 @@
-package br.com.psoft.arena.dtos;
+package br.com.psoft.arena.dtos.estudante;
 
 public record EstudanteDTO(
     String nome,

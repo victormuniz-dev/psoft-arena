@@ -1,5 +1,6 @@
 package br.com.psoft.arena.services.problema;
 
+import java.util.HashSet;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -74,4 +75,12 @@ public class ProblemaService {
         ProblemaModel problema = buscarPorId(id);
         problemaRepository.delete(problema);
     }
+
+    public List<ProblemaModel> buscarPorIds(List<Long> ids) {
+    List<ProblemaModel> problemas = problemaRepository.findAllById(ids);
+    if (problemas.size() != new HashSet<>(ids).size()) {
+        throw new ResourceNotFoundException("Algum dos problemas informados não foi encontrado");
+    }
+    return problemas;
+}
 }

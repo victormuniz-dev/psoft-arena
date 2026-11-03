@@ -83,4 +83,8 @@ public class ProblemaModel {
     @Column(nullable = false)
     private StatusProblema status = StatusProblema.ATIVO;
 
+    public boolean estaAtivo() {
+        return this.status == StatusProblema.ATIVO;
+    }
+
 }
