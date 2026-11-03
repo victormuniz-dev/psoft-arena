@@ -55,4 +55,16 @@ public class EstudanteModel {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EstudanteModel outro)) return false;
+        return matricula != null && matricula.equals(outro.matricula);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hashCode(matricula);
+    }
 }
