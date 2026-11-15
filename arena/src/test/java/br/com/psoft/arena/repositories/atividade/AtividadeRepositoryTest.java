@@ -16,6 +16,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import br.com.psoft.arena.models.atividade.AtividadeModel;
+import br.com.psoft.arena.models.atividade.StatusAtividade;
+import br.com.psoft.arena.models.estrategia.EstrategiaAvaliacaoModel;
+import br.com.psoft.arena.models.estrategia.TipoEstrategia;
+import br.com.psoft.arena.models.llm.ConfiguracaoLlmModel;
 import br.com.psoft.arena.models.problema.ProblemaModel;
 import br.com.psoft.arena.models.professor.ProfessorModel;
 import br.com.psoft.arena.models.turma.TurmaModel;
@@ -25,6 +29,7 @@ import br.com.psoft.arena.models.turma.TurmaModel;
 class AtividadeRepositoryTest {
 
     private static final String DESCRICAO = "Descrição da lista";
+    private static final String CHAVE_CRIPTOGRAFADA = "Y2hhdmUtY3JpcHRvZ3JhZGE=";
     private static final LocalDateTime PRAZO = LocalDateTime.of(2030, 1, 1, 23, 59);
 
     @Autowired
@@ -40,6 +45,7 @@ class AtividadeRepositoryTest {
     private ProblemaModel problemaUsado;
     private ProblemaModel problemaCompartilhado;
     private ProblemaModel problemaLivre;
+    private EstrategiaAvaliacaoModel estrategia;
 
     @BeforeEach
     void setUp() {
@@ -53,8 +59,10 @@ class AtividadeRepositoryTest {
         problemaCompartilhado = em.persist(criarProblema("Problema 2"));
         problemaLivre = em.persist(criarProblema("Problema 3"));
 
-        persistirAtividade("Lista 1", turmaA, problemaUsado, problemaCompartilhado);
-        persistirAtividade("Lista 2", turmaA);
+        estrategia = em.persist(criarEstrategia());
+
+        persistirAtividade("Lista 1", turmaA, problemaUsado);
+        persistirAtividade("Lista 2", turmaA, problemaCompartilhado);
         persistirAtividade("Lista 3", turmaB, problemaCompartilhado);
 
         em.flush();
@@ -77,13 +85,27 @@ class AtividadeRepositoryTest {
         return new ProblemaModel(titulo, "Descrição de " + titulo, List.of("RF1"), List.of("RP1"));
     }
 
-    private AtividadeModel persistirAtividade(String titulo, TurmaModel turma, ProblemaModel... problemas) {
+    private EstrategiaAvaliacaoModel criarEstrategia() {
+        return EstrategiaAvaliacaoModel.builder()
+                .nome("Estratégia")
+                .tipo(TipoEstrategia.CODE_SMELL)
+                .descricao("Descrição da estratégia")
+                .promptAvaliacao("Prompt de avaliação")
+                .build();
+    }
+
+    private AtividadeModel novaAtividade(String titulo, TurmaModel turma, ProblemaModel problema) {
         AtividadeModel atividade = new AtividadeModel(titulo, DESCRICAO, PRAZO);
         atividade.setTurma(turma);
-        for (ProblemaModel problema : problemas) {
-            atividade.adicionarProblema(problema);
-        }
-        return em.persist(atividade);
+        atividade.definirProblema(problema);
+        atividade.definirEstrategia(estrategia);
+        atividade.adicionarConfiguracaoLlm(
+                new ConfiguracaoLlmModel("GPT", "https://api.exemplo.com", CHAVE_CRIPTOGRAFADA, true));
+        return atividade;
+    }
+
+    private AtividadeModel persistirAtividade(String titulo, TurmaModel turma, ProblemaModel problema) {
+        return em.persist(novaAtividade(titulo, turma, problema));
     }
 
     @Test
@@ -119,50 +141,34 @@ class AtividadeRepositoryTest {
     }
 
     @Test
-    @DisplayName("existsByProblemasId retorna true quando o problema está em uma atividade")
-    void existsByProblemasIdTrue() {
-        assertThat(repository.existsByProblemasId(problemaUsado.getId())).isTrue();
+    @DisplayName("existsByProblemaId retorna true quando o problema está associado")
+    void existsByProblemaIdTrue() {
+        assertThat(repository.existsByProblemaId(problemaUsado.getId())).isTrue();
     }
 
     @Test
-    @DisplayName("existsByProblemasId retorna true quando o problema está em várias atividades")
-    void existsByProblemasIdProblemaCompartilhado() {
-        assertThat(repository.existsByProblemasId(problemaCompartilhado.getId())).isTrue();
+    @DisplayName("existsByProblemaId retorna true quando o problema está em várias atividades")
+    void existsByProblemaIdProblemaCompartilhado() {
+        assertThat(repository.existsByProblemaId(problemaCompartilhado.getId())).isTrue();
     }
 
     @Test
-    @DisplayName("existsByProblemasId retorna false para problema sem atividades")
-    void existsByProblemasIdFalse() {
-        assertThat(repository.existsByProblemasId(problemaLivre.getId())).isFalse();
+    @DisplayName("existsByProblemaId retorna false para problema sem atividades")
+    void existsByProblemaIdFalse() {
+        assertThat(repository.existsByProblemaId(problemaLivre.getId())).isFalse();
     }
 
     @Test
-    @DisplayName("existsByProblemasId retorna false para problema inexistente")
-    void existsByProblemasIdProblemaInexistente() {
-        assertThat(repository.existsByProblemasId(Long.MAX_VALUE)).isFalse();
-    }
-
-    @Test
-    @DisplayName("existsByProblemasId passa a retornar false depois que o problema é removido da atividade")
-    void existsByProblemasIdAposRemocao() {
-        AtividadeModel atividade = repository.findByTurmaId(turmaA.getId()).stream()
-                .filter(a -> a.getTitulo().equals("Lista 1"))
-                .findFirst()
-                .orElseThrow();
-        ProblemaModel problema = em.find(ProblemaModel.class, problemaUsado.getId());
-
-        atividade.removerProblema(problema);
-        repository.saveAndFlush(atividade);
-        em.clear();
-
-        assertThat(repository.existsByProblemasId(problemaUsado.getId())).isFalse();
+    @DisplayName("existsByProblemaId retorna false para problema inexistente")
+    void existsByProblemaIdProblemaInexistente() {
+        assertThat(repository.existsByProblemaId(Long.MAX_VALUE)).isFalse();
     }
 
     @Test
     @DisplayName("save persiste a atividade e gera o id")
     void savePersisteAtividade() {
-        AtividadeModel nova = new AtividadeModel("Lista nova", DESCRICAO, PRAZO);
-        nova.setTurma(em.find(TurmaModel.class, turmaB.getId()));
+        AtividadeModel nova = novaAtividade("Lista nova", em.find(TurmaModel.class, turmaB.getId()),
+                em.find(ProblemaModel.class, problemaLivre.getId()));
 
         AtividadeModel salva = repository.saveAndFlush(nova);
         em.clear();
@@ -174,24 +180,69 @@ class AtividadeRepositoryTest {
     }
 
     @Test
-    @DisplayName("save associa os problemas e estratégias da atividade na tabela de junção")
-    void savePersisteAssociacoes() {
-        AtividadeModel nova = new AtividadeModel("Lista com problema", DESCRICAO, PRAZO);
-        nova.setTurma(em.find(TurmaModel.class, turmaB.getId()));
-        nova.adicionarProblema(em.find(ProblemaModel.class, problemaLivre.getId()));
+    @DisplayName("save persiste exatamente um problema e uma estratégia")
+    void savePersisteRelacionamentos() {
+        AtividadeModel nova = novaAtividade("Lista com relacionamentos",
+                em.find(TurmaModel.class, turmaB.getId()),
+                em.find(ProblemaModel.class, problemaLivre.getId()));
 
-        repository.saveAndFlush(nova);
+        AtividadeModel salva = repository.saveAndFlush(nova);
         em.clear();
 
-        assertThat(repository.existsByProblemasId(problemaLivre.getId())).isTrue();
+        AtividadeModel encontrada = repository.findById(salva.getId()).orElseThrow();
+        assertThat(encontrada.getProblema().getId()).isEqualTo(problemaLivre.getId());
+        assertThat(encontrada.getEstrategia().getId()).isEqualTo(estrategia.getId());
+        assertThat(encontrada.getStatus()).isEqualTo(StatusAtividade.ABERTA);
+    }
+
+    @Test
+    @DisplayName("save persiste a configuração de LLM associada à atividade")
+    void savePersisteConfiguracaoLlm() {
+        AtividadeModel nova = novaAtividade("Lista com LLM",
+                em.find(TurmaModel.class, turmaB.getId()),
+                em.find(ProblemaModel.class, problemaLivre.getId()));
+
+        AtividadeModel salva = repository.saveAndFlush(nova);
+        Long configuracaoId = salva.getConfiguracoesLlm().get(0).getId();
+        em.clear();
+
+        ConfiguracaoLlmModel configuracao = em.find(ConfiguracaoLlmModel.class, configuracaoId);
+        assertThat(configuracao).isNotNull();
+        assertThat(configuracao.getNomeModelo()).isEqualTo("GPT");
+        assertThat(configuracao.getUrlApi()).isEqualTo("https://api.exemplo.com");
+        assertThat(configuracao.getChaveApiCriptografada()).isEqualTo(CHAVE_CRIPTOGRAFADA);
+        assertThat(configuracao.isPadrao()).isTrue();
+        assertThat(configuracao.getAtividade().getId()).isEqualTo(salva.getId());
     }
 
     @Test
     @DisplayName("save falha quando a atividade não tem turma")
     void saveSemTurmaFalha() {
         AtividadeModel semTurma = new AtividadeModel("Sem turma", DESCRICAO, PRAZO);
+        semTurma.definirProblema(em.find(ProblemaModel.class, problemaLivre.getId()));
+        semTurma.definirEstrategia(em.find(EstrategiaAvaliacaoModel.class, estrategia.getId()));
 
         assertThrows(DataIntegrityViolationException.class, () -> repository.saveAndFlush(semTurma));
+    }
+
+    @Test
+    @DisplayName("save falha quando a atividade não tem problema")
+    void saveSemProblemaFalha() {
+        AtividadeModel semProblema = new AtividadeModel("Sem problema", DESCRICAO, PRAZO);
+        semProblema.setTurma(em.find(TurmaModel.class, turmaA.getId()));
+        semProblema.definirEstrategia(em.find(EstrategiaAvaliacaoModel.class, estrategia.getId()));
+
+        assertThrows(DataIntegrityViolationException.class, () -> repository.saveAndFlush(semProblema));
+    }
+
+    @Test
+    @DisplayName("save falha quando a atividade não tem estratégia")
+    void saveSemEstrategiaFalha() {
+        AtividadeModel semEstrategia = new AtividadeModel("Sem estratégia", DESCRICAO, PRAZO);
+        semEstrategia.setTurma(em.find(TurmaModel.class, turmaA.getId()));
+        semEstrategia.definirProblema(em.find(ProblemaModel.class, problemaLivre.getId()));
+
+        assertThrows(DataIntegrityViolationException.class, () -> repository.saveAndFlush(semEstrategia));
     }
 
     @Test
@@ -206,8 +257,9 @@ class AtividadeRepositoryTest {
     @Test
     @DisplayName("save persiste descrição e prazo de submissão")
     void savePersisteDescricaoEPrazo() {
-        AtividadeModel nova = new AtividadeModel("Lista com dados", DESCRICAO, PRAZO);
-        nova.setTurma(em.find(TurmaModel.class, turmaA.getId()));
+        AtividadeModel nova = novaAtividade("Lista com dados",
+                em.find(TurmaModel.class, turmaA.getId()),
+                em.find(ProblemaModel.class, problemaLivre.getId()));
 
         AtividadeModel salva = repository.saveAndFlush(nova);
         em.clear();
@@ -222,6 +274,8 @@ class AtividadeRepositoryTest {
     void saveSemDescricaoFalha() {
         AtividadeModel semDescricao = new AtividadeModel("Sem descrição", null, PRAZO);
         semDescricao.setTurma(em.find(TurmaModel.class, turmaA.getId()));
+        semDescricao.definirProblema(em.find(ProblemaModel.class, problemaLivre.getId()));
+        semDescricao.definirEstrategia(em.find(EstrategiaAvaliacaoModel.class, estrategia.getId()));
 
         assertThrows(DataIntegrityViolationException.class,
                 () -> repository.saveAndFlush(semDescricao));
@@ -232,6 +286,8 @@ class AtividadeRepositoryTest {
     void saveSemPrazoFalha() {
         AtividadeModel semPrazo = new AtividadeModel("Sem prazo", DESCRICAO, null);
         semPrazo.setTurma(em.find(TurmaModel.class, turmaA.getId()));
+        semPrazo.definirProblema(em.find(ProblemaModel.class, problemaLivre.getId()));
+        semPrazo.definirEstrategia(em.find(EstrategiaAvaliacaoModel.class, estrategia.getId()));
 
         assertThrows(DataIntegrityViolationException.class,
                 () -> repository.saveAndFlush(semPrazo));
@@ -250,8 +306,22 @@ class AtividadeRepositoryTest {
     }
 
     @Test
-    @DisplayName("deleteById de uma atividade não remove o problema compartilhado")
-    void deleteByIdMantemProblema() {
+    @DisplayName("deleteById remove a configuração de LLM associada por cascata")
+    void deleteByIdRemoveConfiguracaoLlm() {
+        AtividadeModel atividade = repository.findByTurmaId(turmaB.getId()).get(0);
+        Long configuracaoId = atividade.getConfiguracoesLlm().get(0).getId();
+        Long atividadeId = atividade.getId();
+
+        repository.deleteById(atividadeId);
+        repository.flush();
+        em.clear();
+
+        assertThat(em.find(ConfiguracaoLlmModel.class, configuracaoId)).isNull();
+    }
+
+    @Test
+    @DisplayName("deleteById de uma atividade não remove o problema e a estratégia compartilhados")
+    void deleteByIdMantemRelacionamentosCompartilhados() {
         Long id = repository.findByTurmaId(turmaB.getId()).get(0).getId();
 
         repository.deleteById(id);
@@ -259,6 +329,7 @@ class AtividadeRepositoryTest {
         em.clear();
 
         assertThat(em.find(ProblemaModel.class, problemaCompartilhado.getId())).isNotNull();
-        assertThat(repository.existsByProblemasId(problemaCompartilhado.getId())).isTrue();
+        assertThat(em.find(EstrategiaAvaliacaoModel.class, estrategia.getId())).isNotNull();
+        assertThat(repository.existsByProblemaId(problemaCompartilhado.getId())).isTrue();
     }
 }

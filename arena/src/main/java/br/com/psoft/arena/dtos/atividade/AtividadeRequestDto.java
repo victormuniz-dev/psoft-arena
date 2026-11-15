@@ -1,11 +1,10 @@
 package br.com.psoft.arena.dtos.atividade;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
+import br.com.psoft.arena.dtos.llm.ConfiguracaoLlmRequestDto;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -27,8 +26,13 @@ public class AtividadeRequestDto {
     @NotNull(message = "O prazo de submissão é obrigatório")
     private LocalDateTime prazoSubmissao;
 
-    @NotEmpty(message = "Informe pelo menos um problema")
-    private List<Long> problemaIds;
+    @NotNull(message = "O problema é obrigatório")
+    private Long problemaId;
 
-    private List<Long> estrategiaIds = new ArrayList<>();
+    @NotNull(message = "A estratégia de avaliação é obrigatória")
+    private Long estrategiaId;
+
+    @NotNull(message = "A configuração de LLM é obrigatória")
+    @Valid
+    private ConfiguracaoLlmRequestDto configuracaoLlm;
 }

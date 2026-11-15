@@ -1,11 +1,10 @@
 package br.com.psoft.arena.dtos.atividade;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
+import br.com.psoft.arena.dtos.llm.ConfiguracaoLlmResponseDto;
 import br.com.psoft.arena.models.atividade.AtividadeModel;
-import br.com.psoft.arena.models.estrategia.EstrategiaAvaliacaoModel;
-import br.com.psoft.arena.models.problema.ProblemaModel;
+import br.com.psoft.arena.models.atividade.StatusAtividade;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -17,9 +16,11 @@ public class AtividadeResponseDto {
     private String titulo;
     private String descricao;
     private LocalDateTime prazoSubmissao;
+    private StatusAtividade status;
     private Long turmaId;
-    private List<Long> problemaIds;
-    private List<Long> estrategiaIds;
+    private Long problemaId;
+    private Long estrategiaId;
+    private ConfiguracaoLlmResponseDto configuracaoLlm;
 
     public static AtividadeResponseDto de(AtividadeModel a) {
         return new AtividadeResponseDto(
@@ -27,8 +28,10 @@ public class AtividadeResponseDto {
                 a.getTitulo(),
                 a.getDescricao(),
                 a.getPrazoSubmissao(),
+                a.getStatus(),
                 a.getTurma().getId(),
-                a.getProblemas().stream().map(ProblemaModel::getId).toList(),
-                a.getEstrategias().stream().map(EstrategiaAvaliacaoModel::getId).toList());
+                a.getProblema().getId(),
+                a.getEstrategia().getId(),
+                ConfiguracaoLlmResponseDto.de(a.getConfiguracaoLlmPadrao()));
     }
 }
