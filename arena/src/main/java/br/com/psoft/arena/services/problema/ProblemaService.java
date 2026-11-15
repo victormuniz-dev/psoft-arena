@@ -5,8 +5,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import br.com.psoft.arena.exception.BusinessRuleException;
 import br.com.psoft.arena.exception.ResourceNotFoundException;
 import br.com.psoft.arena.models.problema.ProblemaModel;
+import br.com.psoft.arena.repositories.atividade.AtividadeRepository;
 import br.com.psoft.arena.repositories.problema.ProblemaRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class ProblemaService {
 
     private final ProblemaRepository problemaRepository;
+    private final AtividadeRepository atividadeRepository;
 
     public ProblemaModel criar(
         String titulo,
@@ -70,16 +73,19 @@ public class ProblemaService {
     }
 
     public void remover(Long id) {
-        // TODO US6: impedir exclusão se o problema estiver associado a alguma atividade.
         ProblemaModel problema = buscarPorId(id);
+        if (atividadeRepository.existsByProblemaId(id)) {
+            throw new BusinessRuleException(
+                "O problema está associado a uma atividade e não pode ser removido");
+        }
         problemaRepository.delete(problema);
     }
 
     public List<ProblemaModel> buscarPorIds(List<Long> ids) {
-    List<ProblemaModel> problemas = problemaRepository.findAllById(ids);
-    if (problemas.size() != new HashSet<>(ids).size()) {
-        throw new ResourceNotFoundException("Algum dos problemas informados não foi encontrado");
+        List<ProblemaModel> problemas = problemaRepository.findAllById(ids);
+        if (problemas.size() != new HashSet<>(ids).size()) {
+            throw new ResourceNotFoundException("Algum dos problemas informados não foi encontrado");
+        }
+        return problemas;
     }
-    return problemas;
-}
 }

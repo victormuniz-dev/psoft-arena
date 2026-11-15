@@ -36,6 +36,39 @@ class TurmaControllerTest {
     }
 
     @Test
+    @DisplayName("POST sem código retorna 400")
+    void criarSemCodigo() throws Exception {
+        mockMvc.perform(post("/turmas")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"nome":"PSOFT","periodoLetivo":"2026.2","professorId":1}
+                    """))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST sem período letivo retorna 400")
+    void criarSemPeriodoLetivo() throws Exception {
+        mockMvc.perform(post("/turmas")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"nome":"PSOFT","codigo":"T01","professorId":1}
+                    """))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST sem professor responsável retorna 400")
+    void criarSemProfessor() throws Exception {
+        mockMvc.perform(post("/turmas")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"nome":"PSOFT","codigo":"T01","periodoLetivo":"2026.2"}
+                    """))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
     @DisplayName("GET de turma inexistente retorna 404")
     void turmaInexistente() throws Exception {
         when(turmaService.buscarPorId(99L))

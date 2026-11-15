@@ -27,8 +27,8 @@ class TurmaRepositoryTest {
     void turmasDoProfessor() {
         ProfessorModel maria = em.persist(new ProfessorModel("Maria"));
         ProfessorModel joao = em.persist(new ProfessorModel("João"));
-        em.persist(new TurmaModel("A"));
-        em.persist(new TurmaModel("B"));
+        em.persist(new TurmaModel("A", "T01", "2026.1", maria));
+        em.persist(new TurmaModel("B", "T02", "2026.1", joao));
         em.flush();
 
         List<TurmaModel> turmas = turmaRepository.findByProfessorResponsavelId(maria.getId());

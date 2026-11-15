@@ -1,23 +1,27 @@
 package br.com.psoft.arena.models.atividade;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import br.com.psoft.arena.exception.BusinessRuleException;
 import br.com.psoft.arena.models.estrategia.EstrategiaAvaliacaoModel;
+import br.com.psoft.arena.models.llm.ConfiguracaoLlmModel;
 import br.com.psoft.arena.models.problema.ProblemaModel;
 import br.com.psoft.arena.models.turma.TurmaModel;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -25,8 +29,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Representa o modelo de dados de uma Atividade no sistema[cite: 9].
- * Gerencia informações como título, turma associada, problemas e estratégias de avaliação vinculadas[cite: 9].
+ * Representa o modelo de dados de uma Atividade no sistema.
+ * Gerencia informações como título, descrição, prazo de submissão, status, turma associada,
+ * problema, estratégia de avaliação e configurações de LLM vinculadas.
  */
 @Entity
 @Table(name = "tb_atividade")
@@ -41,104 +46,115 @@ public class AtividadeModel {
     @Column(nullable = false)
     private String titulo;
 
+    @Column(nullable = false, length = 2000)
+    private String descricao;
+
+    @Column(nullable = false)
+    private LocalDateTime prazoSubmissao;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusAtividade status = StatusAtividade.ABERTA;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "turma_id", nullable = false)
     @Setter
     private TurmaModel turma;
 
-    @ManyToMany
-    @JoinTable(
-        name = "tb_atividade_problema",
-        joinColumns = @JoinColumn(name = "atividade_id"),
-        inverseJoinColumns = @JoinColumn(name = "problema_id")
-    )
-    @Getter(AccessLevel.NONE)
-    private Set<ProblemaModel> problemas = new HashSet<>();
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "problema_id", nullable = false)
+    private ProblemaModel problema;
 
-    @ManyToMany
-    @JoinTable(
-        name = "tb_atividade_estrategia",
-        joinColumns = @JoinColumn(name = "atividade_id"),
-        inverseJoinColumns = @JoinColumn(name = "estrategia_id")
-    )
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "estrategia_id", nullable = false)
+    private EstrategiaAvaliacaoModel estrategia;
+
+    @OneToMany(mappedBy = "atividade", cascade = CascadeType.ALL, orphanRemoval = true)
     @Getter(AccessLevel.NONE)
-    private Set<EstrategiaAvaliacaoModel> estrategias = new HashSet<>();
+    private List<ConfiguracaoLlmModel> configuracoesLlm = new ArrayList<>();
 
     /**
-     * Constrói uma nova instância de AtividadeModel com o título especificado[cite: 9].
+     * Constrói uma nova instância de AtividadeModel com os dados básicos informados.
      * 
-     * @param titulo O título da atividade[cite: 9].
+     * @param titulo O título da atividade.
+     * @param descricao A descrição da atividade.
+     * @param prazoSubmissao O prazo para submissão da atividade.
      */
-    public AtividadeModel(String titulo) {
+    public AtividadeModel(String titulo, String descricao, LocalDateTime prazoSubmissao) {
         this.titulo = titulo;
+        this.descricao = descricao;
+        this.prazoSubmissao = prazoSubmissao;
     }
 
     /**
-     * Adiciona um problema à atividade, garantindo que o problema esteja ativo
-     * e que ainda não esteja associado a esta atividade[cite: 9].
-     * 
-     * @param problema O modelo do problema a ser adicionado[cite: 9].
+     * Encerra a atividade se ela estiver aberta.
+     * Lança uma exceção se a atividade já estiver encerrada.
      */
-    public void adicionarProblema(ProblemaModel problema) {
+    public void encerrar() {
+        if (status == StatusAtividade.CONCLUIDA) {
+            throw new BusinessRuleException("A atividade já está encerrada");
+        }
+        this.status = StatusAtividade.CONCLUIDA;
+    }
+
+    /**
+     * Define o problema da atividade, garantindo que ele esteja ativo.
+     * 
+     * @param problema O modelo do problema a ser associado.
+     */
+    public void definirProblema(ProblemaModel problema) {
+        if (problema == null) {
+            throw new BusinessRuleException("O problema é obrigatório");
+        }
         if (!problema.estaAtivo()) {
             throw new BusinessRuleException("Problemas inativos não podem ser associados a atividades");
         }
-        if (!problemas.add(problema)) {
-            throw new BusinessRuleException("O problema já está nesta atividade");
+        this.problema = problema;
+    }
+
+    /**
+     * Define a estratégia de avaliação da atividade.
+     * 
+     * @param estrategia O modelo da estratégia de avaliação a ser associada.
+     */
+    public void definirEstrategia(EstrategiaAvaliacaoModel estrategia) {
+        if (estrategia == null) {
+            throw new BusinessRuleException("A estratégia de avaliação é obrigatória");
         }
+        this.estrategia = estrategia;
     }
 
     /**
-     * Remove um problema da atividade[cite: 9].
-     * Lança uma exceção se o problema não pertencer à atividade[cite: 9].
+     * Adiciona uma configuração de LLM à atividade, associando o vínculo reverso.
      * 
-     * @param problema O modelo do problema a ser removido[cite: 9].
+     * @param configuracao A configuração de LLM a ser adicionada.
      */
-    public void removerProblema(ProblemaModel problema) {
-        if (!problemas.remove(problema)) {
-            throw new BusinessRuleException("O problema não pertence a esta atividade");
+    public void adicionarConfiguracaoLlm(ConfiguracaoLlmModel configuracao) {
+        if (configuracao == null) {
+            throw new BusinessRuleException("A configuração de LLM é obrigatória");
         }
+        configuracoesLlm.add(configuracao);
+        configuracao.associarAtividade(this);
     }
 
     /**
-     * Adiciona uma estratégia de avaliação à atividade[cite: 9].
-     * Lança uma exceção caso a estratégia já esteja associada[cite: 9].
+     * Retorna uma visualização não modificável das configurações de LLM associadas.
      * 
-     * @param estrategia O modelo da estratégia de avaliação a ser adicionada[cite: 9].
+     * @return Lista imutável de configurações de LLM.
      */
-    public void adicionarEstrategia(EstrategiaAvaliacaoModel estrategia) {
-        if (!estrategias.add(estrategia)) {
-            throw new BusinessRuleException("A estratégia já está nesta atividade");
-        }
+    public List<ConfiguracaoLlmModel> getConfiguracoesLlm() {
+        return Collections.unmodifiableList(configuracoesLlm);
     }
 
     /**
-     * Remove uma estratégia de avaliação da atividade[cite: 9].
-     * Lança uma exceção se a estratégia não pertencer à atividade[cite: 9].
+     * Retorna a configuração de LLM marcada como padrão, se existir.
      * 
-     * @param estrategia O modelo da estratégia de avaliação a ser removida[cite: 9].
+     * @return A configuração padrão ou {@code null} caso não haja nenhuma.
      */
-    public void removerEstrategia(EstrategiaAvaliacaoModel estrategia) {
-        if (!estrategias.remove(estrategia)) {
-            throw new BusinessRuleException("A estratégia não pertence a esta atividade");
-        }
-    }
-
-    /**
-     * Retorna uma visualização em conjunto não modificável dos problemas associados[cite: 9].
-     * 
-     * @return Conjunto imutável de problemas[cite: 9].
-     */
-    public Set<ProblemaModel> getProblemas() {
-        return Collections.unmodifiableSet(problemas);
-    }
-
-    /**
-     * Retorna uma visualização em conjunto não modificável das estratégias de avaliação associadas[cite: 9].
-     * 
-     * @return Conjunto imutável de estratégias[cite: 9].
-     */
-    public Set<EstrategiaAvaliacaoModel> getEstrategias() {
-        return Collections.unmodifiableSet(estrategias);
+    public ConfiguracaoLlmModel getConfiguracaoLlmPadrao() {
+        return configuracoesLlm.stream()
+                .filter(ConfiguracaoLlmModel::isPadrao)
+                .findFirst()
+                .orElse(null);
     }
 }

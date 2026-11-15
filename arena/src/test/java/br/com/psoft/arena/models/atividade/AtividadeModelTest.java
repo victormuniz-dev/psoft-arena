@@ -1,5 +1,7 @@
 package br.com.psoft.arena.models.atividade;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -17,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.com.psoft.arena.exception.BusinessRuleException;
 import br.com.psoft.arena.models.estrategia.EstrategiaAvaliacaoModel;
+import br.com.psoft.arena.models.llm.ConfiguracaoLlmModel;
 import br.com.psoft.arena.models.problema.ProblemaModel;
 import br.com.psoft.arena.models.turma.TurmaModel;
 
@@ -24,17 +27,14 @@ import br.com.psoft.arena.models.turma.TurmaModel;
 @DisplayName("AtividadeModel")
 class AtividadeModelTest {
 
+    private static final String DESCRICAO = "Descrição da lista";
+    private static final LocalDateTime PRAZO = LocalDateTime.of(2030, 1, 1, 23, 59);
+
     @Mock
     private ProblemaModel problema;
 
     @Mock
-    private ProblemaModel outroProblema;
-
-    @Mock
     private EstrategiaAvaliacaoModel estrategia;
-
-    @Mock
-    private EstrategiaAvaliacaoModel outraEstrategia;
 
     @Mock
     private TurmaModel turma;
@@ -43,7 +43,7 @@ class AtividadeModelTest {
 
     @BeforeEach
     void setUp() {
-        atividade = new AtividadeModel("Lista 1");
+        atividade = new AtividadeModel("Lista 1", DESCRICAO, PRAZO);
     }
 
     @Nested
@@ -51,23 +51,30 @@ class AtividadeModelTest {
     class Construcao {
 
         @Test
-        @DisplayName("construtor com título guarda o título e inicia coleções vazias")
-        void construtorComTitulo() {
+        @DisplayName("construtor guarda os dados básicos e nasce sem relacionamentos")
+        void construtorGuardaDadosBasicos() {
             assertEquals("Lista 1", atividade.getTitulo());
+            assertEquals(DESCRICAO, atividade.getDescricao());
+            assertEquals(PRAZO, atividade.getPrazoSubmissao());
+            assertEquals(StatusAtividade.ABERTA, atividade.getStatus());
             assertNull(atividade.getId());
             assertNull(atividade.getTurma());
-            assertTrue(atividade.getProblemas().isEmpty());
-            assertTrue(atividade.getEstrategias().isEmpty());
+            assertNull(atividade.getProblema());
+            assertNull(atividade.getEstrategia());
+            assertTrue(atividade.getConfiguracoesLlm().isEmpty());
         }
 
         @Test
-        @DisplayName("construtor sem argumentos inicia coleções vazias e título nulo")
+        @DisplayName("construtor sem argumentos mantém campos nulos e coleções vazias")
         void construtorSemArgumentos() {
             AtividadeModel vazia = new AtividadeModel();
 
             assertNull(vazia.getTitulo());
-            assertTrue(vazia.getProblemas().isEmpty());
-            assertTrue(vazia.getEstrategias().isEmpty());
+            assertNull(vazia.getDescricao());
+            assertNull(vazia.getPrazoSubmissao());
+            assertNull(vazia.getProblema());
+            assertNull(vazia.getEstrategia());
+            assertTrue(vazia.getConfiguracoesLlm().isEmpty());
         }
 
         @Test
@@ -80,231 +87,154 @@ class AtividadeModelTest {
     }
 
     @Nested
-    @DisplayName("adicionarProblema")
-    class AdicionarProblema {
+    @DisplayName("definirProblema")
+    class DefinirProblema {
 
         @Test
-        @DisplayName("adiciona problema ativo")
-        void adicionaProblemaAtivo() {
+        @DisplayName("associa um problema ativo")
+        void associaProblemaAtivo() {
             when(problema.estaAtivo()).thenReturn(true);
 
-            atividade.adicionarProblema(problema);
+            atividade.definirProblema(problema);
 
-            assertEquals(1, atividade.getProblemas().size());
-            assertTrue(atividade.getProblemas().contains(problema));
-        }
-
-        @Test
-        @DisplayName("adiciona vários problemas distintos")
-        void adicionaVariosProblemas() {
-            when(problema.estaAtivo()).thenReturn(true);
-            when(outroProblema.estaAtivo()).thenReturn(true);
-
-            atividade.adicionarProblema(problema);
-            atividade.adicionarProblema(outroProblema);
-
-            assertEquals(2, atividade.getProblemas().size());
-            assertTrue(atividade.getProblemas().contains(problema));
-            assertTrue(atividade.getProblemas().contains(outroProblema));
-        }
-
-        @Test
-        @DisplayName("rejeita problema inativo e não o adiciona")
-        void rejeitaProblemaInativo() {
-            when(problema.estaAtivo()).thenReturn(false);
-
-            BusinessRuleException ex = assertThrows(BusinessRuleException.class,
-                    () -> atividade.adicionarProblema(problema));
-
-            assertEquals("Problemas inativos não podem ser associados a atividades", ex.getMessage());
-            assertTrue(atividade.getProblemas().isEmpty());
+            assertSame(problema, atividade.getProblema());
             verify(problema).estaAtivo();
         }
 
         @Test
-        @DisplayName("rejeita problema já associado e mantém apenas uma ocorrência")
-        void rejeitaProblemaDuplicado() {
-            when(problema.estaAtivo()).thenReturn(true);
-            atividade.adicionarProblema(problema);
+        @DisplayName("rejeita problema inativo e não o associa")
+        void rejeitaProblemaInativo() {
+            when(problema.estaAtivo()).thenReturn(false);
 
             BusinessRuleException ex = assertThrows(BusinessRuleException.class,
-                    () -> atividade.adicionarProblema(problema));
+                    () -> atividade.definirProblema(problema));
 
-            assertEquals("O problema já está nesta atividade", ex.getMessage());
-            assertEquals(1, atividade.getProblemas().size());
+            assertEquals("Problemas inativos não podem ser associados a atividades", ex.getMessage());
+            assertNull(atividade.getProblema());
+        }
+
+        @Test
+        @DisplayName("rejeita problema nulo")
+        void rejeitaProblemaNulo() {
+            BusinessRuleException ex = assertThrows(BusinessRuleException.class,
+                    () -> atividade.definirProblema(null));
+
+            assertEquals("O problema é obrigatório", ex.getMessage());
+            assertNull(atividade.getProblema());
         }
     }
 
     @Nested
-    @DisplayName("removerProblema")
-    class RemoverProblema {
+    @DisplayName("definirEstrategia")
+    class DefinirEstrategia {
 
         @Test
-        @DisplayName("remove problema associado")
-        void removeProblemaAssociado() {
-            when(problema.estaAtivo()).thenReturn(true);
-            atividade.adicionarProblema(problema);
+        @DisplayName("associa uma estratégia de avaliação")
+        void associaEstrategia() {
+            atividade.definirEstrategia(estrategia);
 
-            atividade.removerProblema(problema);
-
-            assertTrue(atividade.getProblemas().isEmpty());
+            assertSame(estrategia, atividade.getEstrategia());
         }
 
         @Test
-        @DisplayName("remove apenas o problema informado")
-        void removeApenasOInformado() {
-            when(problema.estaAtivo()).thenReturn(true);
-            when(outroProblema.estaAtivo()).thenReturn(true);
-            atividade.adicionarProblema(problema);
-            atividade.adicionarProblema(outroProblema);
-
-            atividade.removerProblema(problema);
-
-            assertEquals(1, atividade.getProblemas().size());
-            assertTrue(atividade.getProblemas().contains(outroProblema));
-        }
-
-        @Test
-        @DisplayName("lança exceção ao remover problema que não pertence à atividade")
-        void lancaExcecaoSeNaoPertence() {
+        @DisplayName("rejeita estratégia nula, pois é obrigatória")
+        void rejeitaEstrategiaNula() {
             BusinessRuleException ex = assertThrows(BusinessRuleException.class,
-                    () -> atividade.removerProblema(problema));
+                    () -> atividade.definirEstrategia(null));
 
-            assertEquals("O problema não pertence a esta atividade", ex.getMessage());
-        }
-
-        @Test
-        @DisplayName("não permite remover o mesmo problema duas vezes")
-        void naoPermiteRemoverDuasVezes() {
-            when(problema.estaAtivo()).thenReturn(true);
-            atividade.adicionarProblema(problema);
-            atividade.removerProblema(problema);
-
-            assertThrows(BusinessRuleException.class,
-                    () -> atividade.removerProblema(problema));
+            assertEquals("A estratégia de avaliação é obrigatória", ex.getMessage());
+            assertNull(atividade.getEstrategia());
         }
     }
 
     @Nested
-    @DisplayName("adicionarEstrategia")
-    class AdicionarEstrategia {
+    @DisplayName("configurações de LLM")
+    class ConfiguracoesLlm {
 
         @Test
-        @DisplayName("adiciona estratégia")
-        void adicionaEstrategia() {
-            atividade.adicionarEstrategia(estrategia);
+        @DisplayName("adiciona configuração e associa o vínculo reverso com a atividade")
+        void adicionaConfiguracao() {
+            ConfiguracaoLlmModel configuracao =
+                    new ConfiguracaoLlmModel("GPT", "https://api.exemplo", "criptografada", true);
 
-            assertEquals(1, atividade.getEstrategias().size());
-            assertTrue(atividade.getEstrategias().contains(estrategia));
+            atividade.adicionarConfiguracaoLlm(configuracao);
+
+            assertEquals(1, atividade.getConfiguracoesLlm().size());
+            assertSame(configuracao, atividade.getConfiguracoesLlm().get(0));
+            assertSame(atividade, configuracao.getAtividade());
         }
 
         @Test
-        @DisplayName("adiciona várias estratégias distintas")
-        void adicionaVariasEstrategias() {
-            atividade.adicionarEstrategia(estrategia);
-            atividade.adicionarEstrategia(outraEstrategia);
+        @DisplayName("retorna a configuração marcada como padrão")
+        void retornaConfiguracaoPadrao() {
+            ConfiguracaoLlmModel naoPadrao =
+                    new ConfiguracaoLlmModel("Outro", "https://api.exemplo", "criptografada", false);
+            ConfiguracaoLlmModel padrao =
+                    new ConfiguracaoLlmModel("GPT", "https://api.exemplo", "criptografada", true);
+            atividade.adicionarConfiguracaoLlm(naoPadrao);
+            atividade.adicionarConfiguracaoLlm(padrao);
 
-            assertEquals(2, atividade.getEstrategias().size());
+            assertSame(padrao, atividade.getConfiguracaoLlmPadrao());
         }
 
         @Test
-        @DisplayName("rejeita estratégia já associada e mantém apenas uma ocorrência")
-        void rejeitaEstrategiaDuplicada() {
-            atividade.adicionarEstrategia(estrategia);
+        @DisplayName("retorna null quando não há configuração padrão")
+        void semConfiguracaoPadrao() {
+            assertNull(atividade.getConfiguracaoLlmPadrao());
+        }
 
+        @Test
+        @DisplayName("getConfiguracoesLlm não permite alterar a coleção")
+        void colecaoNaoModificavel() {
+            ConfiguracaoLlmModel configuracao =
+                    new ConfiguracaoLlmModel("GPT", "https://api.exemplo", "criptografada", true);
+            atividade.adicionarConfiguracaoLlm(configuracao);
+
+            assertThrows(UnsupportedOperationException.class,
+                    () -> atividade.getConfiguracoesLlm().add(configuracao));
+            assertThrows(UnsupportedOperationException.class,
+                    () -> atividade.getConfiguracoesLlm().clear());
+        }
+
+        @Test
+        @DisplayName("rejeita configuração nula")
+        void rejeitaConfiguracaoNula() {
             BusinessRuleException ex = assertThrows(BusinessRuleException.class,
-                    () -> atividade.adicionarEstrategia(estrategia));
+                    () -> atividade.adicionarConfiguracaoLlm(null));
 
-            assertEquals("A estratégia já está nesta atividade", ex.getMessage());
-            assertEquals(1, atividade.getEstrategias().size());
+            assertEquals("A configuração de LLM é obrigatória", ex.getMessage());
+            assertTrue(atividade.getConfiguracoesLlm().isEmpty());
         }
     }
 
     @Nested
-    @DisplayName("removerEstrategia")
-    class RemoverEstrategia {
+    @DisplayName("ciclo de vida")
+    class CicloDeVida {
 
         @Test
-        @DisplayName("remove estratégia associada")
-        void removeEstrategiaAssociada() {
-            atividade.adicionarEstrategia(estrategia);
-
-            atividade.removerEstrategia(estrategia);
-
-            assertTrue(atividade.getEstrategias().isEmpty());
+        @DisplayName("toda atividade nasce com status ABERTA")
+        void nasceAberta() {
+            assertEquals(StatusAtividade.ABERTA, atividade.getStatus());
         }
 
         @Test
-        @DisplayName("remove apenas a estratégia informada")
-        void removeApenasAInformada() {
-            atividade.adicionarEstrategia(estrategia);
-            atividade.adicionarEstrategia(outraEstrategia);
+        @DisplayName("encerrar altera o status para CONCLUIDA")
+        void encerrarAlteraStatus() {
+            atividade.encerrar();
 
-            atividade.removerEstrategia(estrategia);
-
-            assertEquals(1, atividade.getEstrategias().size());
-            assertTrue(atividade.getEstrategias().contains(outraEstrategia));
+            assertEquals(StatusAtividade.CONCLUIDA, atividade.getStatus());
         }
 
         @Test
-        @DisplayName("lança exceção ao remover estratégia que não pertence à atividade")
-        void lancaExcecaoSeNaoPertence() {
+        @DisplayName("não permite encerrar uma atividade já concluída")
+        void naoPermiteEncerrarConcluida() {
+            atividade.encerrar();
+
             BusinessRuleException ex = assertThrows(BusinessRuleException.class,
-                    () -> atividade.removerEstrategia(estrategia));
+                    () -> atividade.encerrar());
 
-            assertEquals("A estratégia não pertence a esta atividade", ex.getMessage());
-        }
-    }
-
-    // ------------------------------------------------------------------
-    // Imutabilidade das coleções expostas
-    // ------------------------------------------------------------------
-
-    @Nested
-    @DisplayName("coleções não modificáveis")
-    class ColecoesNaoModificaveis {
-
-        @Test
-        @DisplayName("getProblemas não permite alterar o conjunto")
-        void getProblemasImutavel() {
-            when(problema.estaAtivo()).thenReturn(true);
-            atividade.adicionarProblema(problema);
-
-            assertThrows(UnsupportedOperationException.class,
-                    () -> atividade.getProblemas().add(outroProblema));
-            assertThrows(UnsupportedOperationException.class,
-                    () -> atividade.getProblemas().remove(problema));
-            assertThrows(UnsupportedOperationException.class,
-                    () -> atividade.getProblemas().clear());
-            assertEquals(1, atividade.getProblemas().size());
-        }
-
-        @Test
-        @DisplayName("getEstrategias não permite alterar o conjunto")
-        void getEstrategiasImutavel() {
-            atividade.adicionarEstrategia(estrategia);
-
-            assertThrows(UnsupportedOperationException.class,
-                    () -> atividade.getEstrategias().add(outraEstrategia));
-            assertThrows(UnsupportedOperationException.class,
-                    () -> atividade.getEstrategias().remove(estrategia));
-            assertThrows(UnsupportedOperationException.class,
-                    () -> atividade.getEstrategias().clear());
-            assertEquals(1, atividade.getEstrategias().size());
-        }
-
-        @Test
-        @DisplayName("a visão retornada reflete alterações feitas pelos métodos da atividade")
-        void visaoRefleteAlteracoes() {
-            when(problema.estaAtivo()).thenReturn(true);
-            var visaoProblemas = atividade.getProblemas();
-            var visaoEstrategias = atividade.getEstrategias();
-
-            atividade.adicionarProblema(problema);
-            atividade.adicionarEstrategia(estrategia);
-
-            assertTrue(visaoProblemas.contains(problema));
-            assertTrue(visaoEstrategias.contains(estrategia));
+            assertEquals("A atividade já está encerrada", ex.getMessage());
+            assertEquals(StatusAtividade.CONCLUIDA, atividade.getStatus());
         }
     }
 }

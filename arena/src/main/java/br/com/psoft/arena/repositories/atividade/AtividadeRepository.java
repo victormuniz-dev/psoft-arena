@@ -26,5 +26,5 @@ public interface AtividadeRepository extends JpaRepository<AtividadeModel, Long>
      * @param problemaId ID do problema.
      * @return {@code true} se existir pelo menos uma atividade vinculada ao problema, caso contrário {@code false}.
      */
-    boolean existsByProblemasId(Long problemaId);
+    boolean existsByProblemaId(Long problemaId);
 }

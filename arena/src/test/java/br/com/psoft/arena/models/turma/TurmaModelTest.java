@@ -17,7 +17,7 @@ class TurmaModelTest {
 
     @BeforeEach
     void setUp() {
-        turma = new TurmaModel("PSOFT");
+        turma = new TurmaModel("PSOFT", "T01", "2026.2", new ProfessorModel("Maria"));
         estudante = new EstudanteModel("Ana", "123", "ana@email.com");
     }
 
