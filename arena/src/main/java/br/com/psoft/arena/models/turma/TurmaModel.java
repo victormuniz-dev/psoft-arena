@@ -185,4 +185,13 @@ public class TurmaModel {
     public void setAtividades(List<AtividadeModel> atividades) {
         this.atividades = atividades;
     }
+
+    /**
+     * Verifica se um estudante pertence á turma pelo seu ID. 
+     * @param estudanteid ID do estudante. 
+     * @return true se o estudante estiver matriculado na turmafalse caso contrário. 
+     */
+    public boolean contemEstudante(Long estudanteId){
+        return estudantes.stream().anyMatch(e -> e.getId().equals(estudanteId)); 
+    }
 }

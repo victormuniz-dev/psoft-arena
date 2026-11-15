@@ -8,6 +8,10 @@ import br.com.psoft.arena.models.problema.ProblemaModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * DTO de resposta contendo os dados de uma atividade visíveis ao estudante (US7).
+ * Omite informações internas de configuração do professor, como credenciais de API do LLM.
+ */
 @Getter
 @AllArgsConstructor
 public class AtividadeResponseDto {
@@ -18,6 +22,13 @@ public class AtividadeResponseDto {
     private List<Long> problemaIds;
     private List<Long> estrategiaIds;
 
+
+    /**
+     * Converte uma entidade {@link AtividadeModel} em um {@link AtividadeEstudanteResponseDto}.
+     *
+     * @param atividade Entidade de domínio da atividade.
+     * @return Instância preenchida do DTO com os problemas e estratégias associadas.
+     * */
     public static AtividadeResponseDto de(AtividadeModel a) {
         return new AtividadeResponseDto(
                 a.getId(),

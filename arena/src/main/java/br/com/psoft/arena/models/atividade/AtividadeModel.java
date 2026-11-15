@@ -1,5 +1,7 @@
 package br.com.psoft.arena.models.atividade;
 
+import java.io.ObjectInputFilter.Status;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +12,8 @@ import br.com.psoft.arena.models.problema.ProblemaModel;
 import br.com.psoft.arena.models.turma.TurmaModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,8 +29,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Representa o modelo de dados de uma Atividade no sistema[cite: 9].
- * Gerencia informações como título, turma associada, problemas e estratégias de avaliação vinculadas[cite: 9].
+ * Representa o modelo de dados de uma Atividade no sistema.
+ * Gerencia informações como título, descrição, prazo, status, turma associada,
+ * problemas e estratégias de avaliação vinculadas.
  */
 @Entity
 @Table(name = "tb_atividade")
@@ -64,6 +69,18 @@ public class AtividadeModel {
     @Getter(AccessLevel.NONE)
     private Set<EstrategiaAvaliacaoModel> estrategias = new HashSet<>();
 
+
+    @Column (columnDefinition = "TEXT")
+    @Setter 
+    private String descricao;
+    
+    @Enumerated (EnumType.STRING)
+    @Column (nullable = false)
+    @Setter 
+    private StatusAtividade status = StatusAtividade.ABERTA; 
+
+    @Setter 
+    private  LocalDateTime prazo; 
     /**
      * Constrói uma nova instância de AtividadeModel com o título especificado[cite: 9].
      * 
