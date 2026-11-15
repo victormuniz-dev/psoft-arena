@@ -35,6 +35,7 @@ import br.com.psoft.arena.models.estrategia.EstrategiaAvaliacaoModel;
 import br.com.psoft.arena.models.estrategia.TipoEstrategia;
 import br.com.psoft.arena.models.llm.ConfiguracaoLlmModel;
 import br.com.psoft.arena.models.problema.ProblemaModel;
+import br.com.psoft.arena.models.professor.ProfessorModel;
 import br.com.psoft.arena.models.turma.TurmaModel;
 import br.com.psoft.arena.services.atividade.AtividadeService;
 
@@ -58,7 +59,7 @@ class AtividadeControllerTest {
     private AtividadeService atividadeService;
 
     private AtividadeModel criarAtividadeModel(Long id, String titulo, boolean concluida) {
-        TurmaModel turma = new TurmaModel("Turma A");
+        TurmaModel turma = new TurmaModel("Turma A", "T01", "2026.1", new ProfessorModel("Professor A"));
         ReflectionTestUtils.setField(turma, "id", 1L);
 
         ProblemaModel problema = new ProblemaModel("Problema 1", "Descrição", List.of("RF1"), List.of("RP1"));

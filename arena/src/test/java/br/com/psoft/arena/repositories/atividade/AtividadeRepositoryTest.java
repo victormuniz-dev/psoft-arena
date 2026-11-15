@@ -74,11 +74,7 @@ class AtividadeRepositoryTest {
     }
 
     private TurmaModel criarTurma(String nome, String codigo, ProfessorModel professor) {
-        TurmaModel turma = new TurmaModel(nome);
-        turma.setPeriodoLetivo("2026.1");
-        ReflectionTestUtils.setField(turma, "codigo", codigo);
-        ReflectionTestUtils.setField(turma, "professorResponsavel", professor);
-        return turma;
+        return new TurmaModel(nome, codigo, "2026.1", professor);
     }
 
     private ProblemaModel criarProblema(String titulo) {

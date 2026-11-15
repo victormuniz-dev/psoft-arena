@@ -31,9 +31,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Representa o modelo de dados de uma Turma no sistema[cite: 7].
+ * Representa o modelo de dados de uma Turma no sistema.
  * Gerencia informações como nome, código único, período letivo, professor responsável,
- * status, atividades vinculadas e estudantes matriculados[cite: 7].
+ * status, atividades vinculadas e estudantes matriculados.
  */
 @Entity
 @Table(name = "tb_turma")
@@ -78,14 +78,15 @@ public class TurmaModel {
     private Set<EstudanteModel> estudantes = new HashSet<>();
 
     /**
-     * Constrói uma nova instância de TurmaModel com os dados básicos necessários[cite: 7].
+     * Constrói uma nova instância de TurmaModel com os dados básicos necessários.
      * 
-     * @param nome Nome da turma[cite: 7].
-     * @param codigo Código identificador único da turma[cite: 7].
-     * @param periodoLetivo Período letivo correspondente[cite: 7].
-     * @param professorResponsavel Professor responsável pela turma[cite: 7].
+     * @param nome Nome da turma.
+     * @param codigo Código identificador único da turma.
+     * @param periodoLetivo Período letivo correspondente.
+     * @param professorResponsavel Professor responsável pela turma.
      */
-    public TurmaModel(String nome) {
+    public TurmaModel(String nome, String codigo, String periodoLetivo,
+                      ProfessorModel professorResponsavel) {
         this.nome = nome;
         this.codigo = codigo;
         this.periodoLetivo = periodoLetivo;
@@ -93,8 +94,8 @@ public class TurmaModel {
     }
 
     /**
-     * Encerra a turma se ela estiver ativa[cite: 7].
-     * Lança uma exceção se a turma já estiver encerrada[cite: 7].
+     * Encerra a turma se ela estiver ativa.
+     * Lança uma exceção se a turma já estiver encerrada.
      */
     public void encerrar() {
         if (status == StatusTurma.ENCERRADA) {
@@ -105,9 +106,9 @@ public class TurmaModel {
 
     /**
      * Adiciona um estudante à turma, garantindo que a turma esteja ativa e que o estudante
-     * ainda não esteja associado a ela[cite: 7].
+     * ainda não esteja associado a ela.
      * 
-     * @param estudante O modelo do estudante a ser adicionado[cite: 7].
+     * @param estudante O modelo do estudante a ser adicionado.
      */
     public void adicionarEstudante(EstudanteModel estudante) {
         garantirAtiva("receber novos estudantes");
@@ -117,10 +118,10 @@ public class TurmaModel {
     }
 
     /**
-     * Remove um estudante da turma[cite: 7].
-     * Lança uma exceção caso o estudante não pertença à turma[cite: 7].
+     * Remove um estudante da turma.
+     * Lança uma exceção caso o estudante não pertença à turma.
      * 
-     * @param estudante O modelo do estudante a ser removido[cite: 7].
+     * @param estudante O modelo do estudante a ser removido.
      */
     public void removerEstudante(EstudanteModel estudante) {
         if (!estudantes.remove(estudante)) {
@@ -129,9 +130,9 @@ public class TurmaModel {
     }
 
     /**
-     * Adiciona uma atividade à turma, garantindo que a turma esteja ativa[cite: 7].
+     * Adiciona uma atividade à turma, garantindo que a turma esteja ativa.
      * 
-     * @param atividade O modelo da atividade a ser adicionada[cite: 7].
+     * @param atividade O modelo da atividade a ser adicionada.
      */
     public void adicionarAtividade(AtividadeModel atividade) {
         garantirAtiva("receber novas atividades");
@@ -140,27 +141,27 @@ public class TurmaModel {
     }
 
     /**
-     * Retorna uma visualização em conjunto não modificável dos estudantes matriculados[cite: 7].
+     * Retorna uma visualização em conjunto não modificável dos estudantes matriculados.
      * 
-     * @return Conjunto imutável de estudantes[cite: 7].
+     * @return Conjunto imutável de estudantes.
      */
     public Set<EstudanteModel> getEstudantes() {
         return Collections.unmodifiableSet(estudantes);
     }
 
     /**
-     * Retorna uma lista não modificável das atividades associadas à turma[cite: 7].
+     * Retorna uma lista não modificável das atividades associadas à turma.
      * 
-     * @return Lista imutável de atividades[cite: 7].
+     * @return Lista imutável de atividades.
      */
     public List<AtividadeModel> getAtividades() {
         return Collections.unmodifiableList(atividades);
     }
 
     /**
-     * Método auxiliar privado para validar se a turma está ativa antes de realizar operações restritas[cite: 7].
+     * Método auxiliar privado para validar se a turma está ativa antes de realizar operações restritas.
      * 
-     * @param acao A descrição da ação que requer a turma ativa[cite: 7].
+     * @param acao A descrição da ação que requer a turma ativa.
      */
     private void garantirAtiva(String acao) {
         if (status != StatusTurma.ATIVA) {
@@ -169,18 +170,18 @@ public class TurmaModel {
     }
 
     /**
-     * Define o conjunto de estudantes da turma[cite: 7].
+     * Define o conjunto de estudantes da turma.
      * 
-     * @param estudantes Conjunto de estudantes[cite: 7].
+     * @param estudantes Conjunto de estudantes.
      */
     public void setEstudantes(Set<EstudanteModel> estudantes) {
         this.estudantes = estudantes;
     }
 
     /**
-     * Define a lista de atividades da turma[cite: 7].
+     * Define a lista de atividades da turma.
      * 
-     * @param atividades Lista de atividades[cite: 7].
+     * @param atividades Lista de atividades.
      */
     public void setAtividades(List<AtividadeModel> atividades) {
         this.atividades = atividades;
