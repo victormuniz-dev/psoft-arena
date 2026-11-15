@@ -1,5 +1,6 @@
 package br.com.psoft.arena.dtos.atividade;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import br.com.psoft.arena.models.atividade.AtividadeModel;
@@ -14,6 +15,8 @@ public class AtividadeResponseDto {
 
     private Long id;
     private String titulo;
+    private String descricao;
+    private LocalDateTime prazoSubmissao;
     private Long turmaId;
     private List<Long> problemaIds;
     private List<Long> estrategiaIds;
@@ -22,6 +25,8 @@ public class AtividadeResponseDto {
         return new AtividadeResponseDto(
                 a.getId(),
                 a.getTitulo(),
+                a.getDescricao(),
+                a.getPrazoSubmissao(),
                 a.getTurma().getId(),
                 a.getProblemas().stream().map(ProblemaModel::getId).toList(),
                 a.getEstrategias().stream().map(EstrategiaAvaliacaoModel::getId).toList());

@@ -1,5 +1,7 @@
 package br.com.psoft.arena.models.atividade;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -24,6 +26,9 @@ import br.com.psoft.arena.models.turma.TurmaModel;
 @DisplayName("AtividadeModel")
 class AtividadeModelTest {
 
+    private static final String DESCRICAO = "Descrição da lista";
+    private static final LocalDateTime PRAZO = LocalDateTime.of(2030, 1, 1, 23, 59);
+
     @Mock
     private ProblemaModel problema;
 
@@ -43,7 +48,7 @@ class AtividadeModelTest {
 
     @BeforeEach
     void setUp() {
-        atividade = new AtividadeModel("Lista 1");
+        atividade = new AtividadeModel("Lista 1", DESCRICAO, PRAZO);
     }
 
     @Nested
@@ -61,11 +66,20 @@ class AtividadeModelTest {
         }
 
         @Test
-        @DisplayName("construtor sem argumentos inicia coleções vazias e título nulo")
+        @DisplayName("construtor guarda descrição e prazo de submissão")
+        void construtorGuardaDescricaoEPrazo() {
+            assertEquals(DESCRICAO, atividade.getDescricao());
+            assertEquals(PRAZO, atividade.getPrazoSubmissao());
+        }
+
+        @Test
+        @DisplayName("construtor sem argumentos inicia coleções vazias e campos nulos")
         void construtorSemArgumentos() {
             AtividadeModel vazia = new AtividadeModel();
 
             assertNull(vazia.getTitulo());
+            assertNull(vazia.getDescricao());
+            assertNull(vazia.getPrazoSubmissao());
             assertTrue(vazia.getProblemas().isEmpty());
             assertTrue(vazia.getEstrategias().isEmpty());
         }

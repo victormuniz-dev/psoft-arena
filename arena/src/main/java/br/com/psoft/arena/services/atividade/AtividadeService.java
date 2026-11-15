@@ -1,5 +1,6 @@
 package br.com.psoft.arena.services.atividade;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -35,19 +36,31 @@ public class AtividadeService {
      * 
      * @param turmaId ID da turma à qual a atividade pertencerá[cite: 10].
      * @param titulo Título da atividade[cite: 10].
+     * @param descricao Descrição da atividade[cite: 10].
+     * @param prazoSubmissao Prazo para submissão da atividade[cite: 10].
      * @param problemaIds Lista de IDs dos problemas que compõem a atividade[cite: 10].
      * @param estrategiaIds Lista opcional de IDs das estratégias de avaliação da atividade[cite: 10].
      * @return O {@link AtividadeModel} criado e persistido[cite: 10].
      */
     @Transactional
-    public AtividadeModel criar(Long turmaId, String titulo,
+    public AtividadeModel criar(Long turmaId, String titulo, String descricao,
+                                LocalDateTime prazoSubmissao,
                                 List<Long> problemaIds, List<Long> estrategiaIds) {
         if (problemaIds == null || problemaIds.isEmpty()) {
             throw new BusinessRuleException("A atividade precisa ter pelo menos um problema");
         }
+        if (descricao == null || descricao.isBlank()) {
+            throw new BusinessRuleException("A descrição é obrigatória");
+        }
+        if (prazoSubmissao == null) {
+            throw new BusinessRuleException("O prazo de submissão é obrigatório");
+        }
+        if (!prazoSubmissao.isAfter(LocalDateTime.now())) {
+            throw new BusinessRuleException("O prazo de submissão deve ser futuro");
+        }
 
         TurmaModel turma = turmaService.buscarEntidadePorId(turmaId);
-        AtividadeModel atividade = new AtividadeModel(titulo.trim());
+        AtividadeModel atividade = new AtividadeModel(titulo.trim(), descricao.trim(), prazoSubmissao);
 
         problemaService.buscarPorIds(List.copyOf(new LinkedHashSet<>(problemaIds)))
                 .forEach(atividade::adicionarProblema);

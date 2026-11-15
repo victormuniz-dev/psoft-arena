@@ -1,5 +1,6 @@
 package br.com.psoft.arena.repositories.atividade;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +23,9 @@ import br.com.psoft.arena.models.turma.TurmaModel;
 @DataJpaTest
 @DisplayName("AtividadeRepository")
 class AtividadeRepositoryTest {
+
+    private static final String DESCRICAO = "Descrição da lista";
+    private static final LocalDateTime PRAZO = LocalDateTime.of(2030, 1, 1, 23, 59);
 
     @Autowired
     private AtividadeRepository repository;
@@ -74,7 +78,7 @@ class AtividadeRepositoryTest {
     }
 
     private AtividadeModel persistirAtividade(String titulo, TurmaModel turma, ProblemaModel... problemas) {
-        AtividadeModel atividade = new AtividadeModel(titulo);
+        AtividadeModel atividade = new AtividadeModel(titulo, DESCRICAO, PRAZO);
         atividade.setTurma(turma);
         for (ProblemaModel problema : problemas) {
             atividade.adicionarProblema(problema);
@@ -157,7 +161,7 @@ class AtividadeRepositoryTest {
     @Test
     @DisplayName("save persiste a atividade e gera o id")
     void savePersisteAtividade() {
-        AtividadeModel nova = new AtividadeModel("Lista nova");
+        AtividadeModel nova = new AtividadeModel("Lista nova", DESCRICAO, PRAZO);
         nova.setTurma(em.find(TurmaModel.class, turmaB.getId()));
 
         AtividadeModel salva = repository.saveAndFlush(nova);
@@ -172,7 +176,7 @@ class AtividadeRepositoryTest {
     @Test
     @DisplayName("save associa os problemas e estratégias da atividade na tabela de junção")
     void savePersisteAssociacoes() {
-        AtividadeModel nova = new AtividadeModel("Lista com problema");
+        AtividadeModel nova = new AtividadeModel("Lista com problema", DESCRICAO, PRAZO);
         nova.setTurma(em.find(TurmaModel.class, turmaB.getId()));
         nova.adicionarProblema(em.find(ProblemaModel.class, problemaLivre.getId()));
 
@@ -185,7 +189,7 @@ class AtividadeRepositoryTest {
     @Test
     @DisplayName("save falha quando a atividade não tem turma")
     void saveSemTurmaFalha() {
-        AtividadeModel semTurma = new AtividadeModel("Sem turma");
+        AtividadeModel semTurma = new AtividadeModel("Sem turma", DESCRICAO, PRAZO);
 
         assertThrows(DataIntegrityViolationException.class, () -> repository.saveAndFlush(semTurma));
     }
@@ -197,6 +201,40 @@ class AtividadeRepositoryTest {
         semTitulo.setTurma(em.find(TurmaModel.class, turmaA.getId()));
 
         assertThrows(DataIntegrityViolationException.class, () -> repository.saveAndFlush(semTitulo));
+    }
+
+    @Test
+    @DisplayName("save persiste descrição e prazo de submissão")
+    void savePersisteDescricaoEPrazo() {
+        AtividadeModel nova = new AtividadeModel("Lista com dados", DESCRICAO, PRAZO);
+        nova.setTurma(em.find(TurmaModel.class, turmaA.getId()));
+
+        AtividadeModel salva = repository.saveAndFlush(nova);
+        em.clear();
+
+        AtividadeModel encontrada = repository.findById(salva.getId()).orElseThrow();
+        assertThat(encontrada.getDescricao()).isEqualTo(DESCRICAO);
+        assertThat(encontrada.getPrazoSubmissao()).isEqualTo(PRAZO);
+    }
+
+    @Test
+    @DisplayName("save falha quando a atividade não tem descrição")
+    void saveSemDescricaoFalha() {
+        AtividadeModel semDescricao = new AtividadeModel("Sem descrição", null, PRAZO);
+        semDescricao.setTurma(em.find(TurmaModel.class, turmaA.getId()));
+
+        assertThrows(DataIntegrityViolationException.class,
+                () -> repository.saveAndFlush(semDescricao));
+    }
+
+    @Test
+    @DisplayName("save falha quando a atividade não tem prazo de submissão")
+    void saveSemPrazoFalha() {
+        AtividadeModel semPrazo = new AtividadeModel("Sem prazo", DESCRICAO, null);
+        semPrazo.setTurma(em.find(TurmaModel.class, turmaA.getId()));
+
+        assertThrows(DataIntegrityViolationException.class,
+                () -> repository.saveAndFlush(semPrazo));
     }
 
     @Test

@@ -1,5 +1,6 @@
 package br.com.psoft.arena.models.atividade;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,7 +29,8 @@ import lombok.Setter;
 
 /**
  * Representa o modelo de dados de uma Atividade no sistema[cite: 9].
- * Gerencia informações como título, status, turma associada, problemas e estratégias de avaliação vinculadas[cite: 9].
+ * Gerencia informações como título, descrição, prazo de submissão, status, turma associada,
+ * problemas e estratégias de avaliação vinculadas[cite: 9].
  */
 @Entity
 @Table(name = "tb_atividade")
@@ -42,6 +44,12 @@ public class AtividadeModel {
 
     @Column(nullable = false)
     private String titulo;
+
+    @Column(nullable = false, length = 2000)
+    private String descricao;
+
+    @Column(nullable = false)
+    private LocalDateTime prazoSubmissao;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -71,12 +79,16 @@ public class AtividadeModel {
     private Set<EstrategiaAvaliacaoModel> estrategias = new HashSet<>();
 
     /**
-     * Constrói uma nova instância de AtividadeModel com o título especificado[cite: 9].
+     * Constrói uma nova instância de AtividadeModel com os dados básicos informados[cite: 9].
      * 
      * @param titulo O título da atividade[cite: 9].
+     * @param descricao A descrição da atividade[cite: 9].
+     * @param prazoSubmissao O prazo para submissão da atividade[cite: 9].
      */
-    public AtividadeModel(String titulo) {
+    public AtividadeModel(String titulo, String descricao, LocalDateTime prazoSubmissao) {
         this.titulo = titulo;
+        this.descricao = descricao;
+        this.prazoSubmissao = prazoSubmissao;
     }
 
     /**

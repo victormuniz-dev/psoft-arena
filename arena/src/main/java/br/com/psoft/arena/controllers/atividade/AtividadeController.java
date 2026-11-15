@@ -41,6 +41,8 @@ public class AtividadeController {
         AtividadeModel atividade = atividadeService.criar(
                 turmaId,
                 request.getTitulo(),
+                request.getDescricao(),
+                request.getPrazoSubmissao(),
                 request.getProblemaIds(),
                 request.getEstrategiaIds());
 

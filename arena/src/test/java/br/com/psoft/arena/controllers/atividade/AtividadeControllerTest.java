@@ -1,5 +1,6 @@
 package br.com.psoft.arena.controllers.atividade;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -38,8 +39,10 @@ import br.com.psoft.arena.services.atividade.AtividadeService;
 @DisplayName("AtividadeController")
 class AtividadeControllerTest {
 
+    private static final String DESCRICAO = "Descrição da lista";
+    private static final LocalDateTime PRAZO = LocalDateTime.of(2030, 1, 1, 23, 59);
     private static final String CORPO_VALIDO = """
-            {"titulo":"Lista 1","problemaIds":[10,20],"estrategiaIds":[5]}
+            {"titulo":"Lista 1","descricao":"Descrição da lista","prazoSubmissao":"2030-01-01T23:59:00","problemaIds":[10,20],"estrategiaIds":[5]}
             """;
 
     @Autowired
@@ -55,7 +58,7 @@ class AtividadeControllerTest {
         ProblemaModel problema = new ProblemaModel("Problema 1", "Descrição", List.of("RF1"), List.of("RP1"));
         ReflectionTestUtils.setField(problema, "id", 10L);
 
-        AtividadeModel atividade = new AtividadeModel(titulo);
+        AtividadeModel atividade = new AtividadeModel(titulo, DESCRICAO, PRAZO);
         ReflectionTestUtils.setField(atividade, "id", id);
         atividade.setTurma(turma);
         atividade.adicionarProblema(problema);
@@ -69,7 +72,8 @@ class AtividadeControllerTest {
         @Test
         @DisplayName("retorna 201 com Location e corpo da atividade criada")
         void retornaCreated() throws Exception {
-            when(atividadeService.criar(1L, "Lista 1", List.of(10L, 20L), List.of(5L)))
+            when(atividadeService.criar(
+                    1L, "Lista 1", DESCRICAO, PRAZO, List.of(10L, 20L), List.of(5L)))
                     .thenReturn(criarAtividade(7L, "Lista 1"));
 
             mockMvc.perform(post("/turmas/1/atividades")
@@ -78,21 +82,25 @@ class AtividadeControllerTest {
                     .andExpect(status().isCreated())
                     .andExpect(header().string("Location", "/atividades/7"))
                     .andExpect(jsonPath("$.id").value(7))
-                    .andExpect(jsonPath("$.titulo").value("Lista 1"));
+                    .andExpect(jsonPath("$.titulo").value("Lista 1"))
+                    .andExpect(jsonPath("$.descricao").value(DESCRICAO))
+                    .andExpect(jsonPath("$.prazoSubmissao").value("2030-01-01T23:59:00"));
 
-            verify(atividadeService).criar(1L, "Lista 1", List.of(10L, 20L), List.of(5L));
+            verify(atividadeService).criar(
+                    1L, "Lista 1", DESCRICAO, PRAZO, List.of(10L, 20L), List.of(5L));
         }
 
         @Test
         @DisplayName("aceita requisição sem estratégias")
         void semEstrategias() throws Exception {
-            when(atividadeService.criar(eq(1L), eq("Lista 1"), eq(List.of(10L)), any()))
+            when(atividadeService.criar(
+                    eq(1L), eq("Lista 1"), eq(DESCRICAO), eq(PRAZO), eq(List.of(10L)), any()))
                     .thenReturn(criarAtividade(7L, "Lista 1"));
 
             mockMvc.perform(post("/turmas/1/atividades")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
-                                    {"titulo":"Lista 1","problemaIds":[10]}
+                                    {"titulo":"Lista 1","descricao":"Descrição da lista","prazoSubmissao":"2030-01-01T23:59:00","problemaIds":[10]}
                                     """))
                     .andExpect(status().isCreated())
                     .andExpect(header().string("Location", "/atividades/7"));
@@ -104,7 +112,33 @@ class AtividadeControllerTest {
             mockMvc.perform(post("/turmas/1/atividades")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
-                                    {"titulo":"","problemaIds":[10]}
+                                    {"titulo":"","descricao":"Descrição da lista","prazoSubmissao":"2030-01-01T23:59:00","problemaIds":[10]}
+                                    """))
+                    .andExpect(status().isBadRequest());
+
+            verifyNoInteractions(atividadeService);
+        }
+
+        @Test
+        @DisplayName("retorna 400 quando a descrição está em branco")
+        void descricaoEmBranco() throws Exception {
+            mockMvc.perform(post("/turmas/1/atividades")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("""
+                                    {"titulo":"Lista 1","descricao":"","prazoSubmissao":"2030-01-01T23:59:00","problemaIds":[10]}
+                                    """))
+                    .andExpect(status().isBadRequest());
+
+            verifyNoInteractions(atividadeService);
+        }
+
+        @Test
+        @DisplayName("retorna 400 quando o prazo de submissão está ausente")
+        void prazoAusente() throws Exception {
+            mockMvc.perform(post("/turmas/1/atividades")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("""
+                                    {"titulo":"Lista 1","descricao":"Descrição da lista","problemaIds":[10]}
                                     """))
                     .andExpect(status().isBadRequest());
 
@@ -146,7 +180,8 @@ class AtividadeControllerTest {
         @Test
         @DisplayName("retorna 404 quando a turma não existe")
         void turmaNaoEncontrada() throws Exception {
-            when(atividadeService.criar(eq(99L), anyString(), anyList(), any()))
+            when(atividadeService.criar(
+                    eq(99L), anyString(), anyString(), any(LocalDateTime.class), anyList(), any()))
                     .thenThrow(new ResourceNotFoundException("Turma não encontrada: 99"));
 
             mockMvc.perform(post("/turmas/99/atividades")
@@ -158,7 +193,8 @@ class AtividadeControllerTest {
         @Test
         @DisplayName("retorna erro 4xx quando uma regra de negócio é violada")
         void regraDeNegocio() throws Exception {
-            when(atividadeService.criar(eq(1L), anyString(), anyList(), any()))
+            when(atividadeService.criar(
+                    eq(1L), anyString(), anyString(), any(LocalDateTime.class), anyList(), any()))
                     .thenThrow(new BusinessRuleException("Uma turma encerrada não pode receber novas atividades"));
 
             mockMvc.perform(post("/turmas/1/atividades")

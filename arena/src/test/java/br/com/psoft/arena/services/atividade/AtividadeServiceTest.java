@@ -1,5 +1,6 @@
 package br.com.psoft.arena.services.atividade;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +41,10 @@ import br.com.psoft.arena.services.turma.TurmaService;
 @DisplayName("AtividadeService")
 class AtividadeServiceTest {
 
+    private static final String DESCRICAO = "Descrição da lista";
+    private static final LocalDateTime PRAZO_FUTURO = LocalDateTime.now().plusDays(30);
+    private static final LocalDateTime PRAZO_PASSADO = LocalDateTime.now().minusDays(1);
+
     @Mock
     private AtividadeRepository atividadeRepository;
 
@@ -68,7 +73,7 @@ class AtividadeServiceTest {
 
     @BeforeEach
     void setUp() {
-        atividade = new AtividadeModel("Lista");
+        atividade = new AtividadeModel("Lista", DESCRICAO, PRAZO_FUTURO);
     }
 
     private ProblemaModel problemaAtivo(String titulo) {
@@ -95,9 +100,11 @@ class AtividadeServiceTest {
             when(estrategiaService.buscarEntidadesPorIds(List.of(5L))).thenReturn(List.of(estrategia));
             when(atividadeRepository.save(any(AtividadeModel.class))).thenAnswer(inv -> inv.getArgument(0));
 
-            AtividadeModel resultado = service.criar(1L, "Lista 1", List.of(10L, 20L), List.of(5L));
+            AtividadeModel resultado = service.criar(1L, "Lista 1", DESCRICAO, PRAZO_FUTURO, List.of(10L, 20L), List.of(5L));
 
             assertEquals("Lista 1", resultado.getTitulo());
+            assertEquals(DESCRICAO, resultado.getDescricao());
+            assertEquals(PRAZO_FUTURO, resultado.getPrazoSubmissao());
             assertEquals(2, resultado.getProblemas().size());
             assertTrue(resultado.getProblemas().contains(p1));
             assertTrue(resultado.getProblemas().contains(p2));
@@ -114,9 +121,64 @@ class AtividadeServiceTest {
             when(problemaService.buscarPorIds(List.of(10L))).thenReturn(List.of(problemaAtivo("P1")));
             when(atividadeRepository.save(any(AtividadeModel.class))).thenAnswer(inv -> inv.getArgument(0));
 
-            AtividadeModel resultado = service.criar(1L, "  Lista 1  ", List.of(10L), null);
+            AtividadeModel resultado = service.criar(1L, "  Lista 1  ", DESCRICAO, PRAZO_FUTURO, List.of(10L), null);
 
             assertEquals("Lista 1", resultado.getTitulo());
+        }
+
+        @Test
+        @DisplayName("remove espaços do início e do fim da descrição")
+        void aparaDescricao() {
+            when(turmaService.buscarEntidadePorId(1L)).thenReturn(turma);
+            when(problemaService.buscarPorIds(List.of(10L))).thenReturn(List.of(problemaAtivo("P1")));
+            when(atividadeRepository.save(any(AtividadeModel.class))).thenAnswer(inv -> inv.getArgument(0));
+
+            AtividadeModel resultado = service.criar(
+                    1L, "Lista", "  Descrição da lista  ", PRAZO_FUTURO, List.of(10L), null);
+
+            assertEquals("Descrição da lista", resultado.getDescricao());
+        }
+
+        @Test
+        @DisplayName("lança exceção e não persiste quando a descrição está em branco")
+        void rejeitaDescricaoEmBranco() {
+            BusinessRuleException ex = assertThrows(BusinessRuleException.class,
+                    () -> service.criar(1L, "Lista", "   ", PRAZO_FUTURO, List.of(10L), null));
+
+            assertEquals("A descrição é obrigatória", ex.getMessage());
+            verifyNoInteractions(turmaService, problemaService, estrategiaService, atividadeRepository);
+        }
+
+        @Test
+        @DisplayName("lança exceção e não persiste quando o prazo é passado")
+        void rejeitaPrazoPassado() {
+            BusinessRuleException ex = assertThrows(BusinessRuleException.class,
+                    () -> service.criar(1L, "Lista", DESCRICAO, PRAZO_PASSADO, List.of(10L), null));
+
+            assertEquals("O prazo de submissão deve ser futuro", ex.getMessage());
+            verifyNoInteractions(turmaService, problemaService, estrategiaService, atividadeRepository);
+        }
+
+        @Test
+        @DisplayName("lança exceção quando o prazo é igual ou anterior ao momento da validação")
+        void rejeitaPrazoIgualAoMomentoAtual() {
+            LocalDateTime agora = LocalDateTime.now();
+
+            BusinessRuleException ex = assertThrows(BusinessRuleException.class,
+                    () -> service.criar(1L, "Lista", DESCRICAO, agora, List.of(10L), null));
+
+            assertEquals("O prazo de submissão deve ser futuro", ex.getMessage());
+            verify(atividadeRepository, never()).save(any(AtividadeModel.class));
+        }
+
+        @Test
+        @DisplayName("lança exceção e não persiste quando o prazo é nulo")
+        void rejeitaPrazoNulo() {
+            BusinessRuleException ex = assertThrows(BusinessRuleException.class,
+                    () -> service.criar(1L, "Lista", DESCRICAO, null, List.of(10L), null));
+
+            assertEquals("O prazo de submissão é obrigatório", ex.getMessage());
+            verifyNoInteractions(turmaService, problemaService, estrategiaService, atividadeRepository);
         }
 
         @Test
@@ -126,7 +188,7 @@ class AtividadeServiceTest {
             when(problemaService.buscarPorIds(List.of(10L))).thenReturn(List.of(problemaAtivo("P1")));
             when(atividadeRepository.save(any(AtividadeModel.class))).thenAnswer(inv -> inv.getArgument(0));
 
-            AtividadeModel resultado = service.criar(1L, "Lista", List.of(10L), null);
+            AtividadeModel resultado = service.criar(1L, "Lista", DESCRICAO, PRAZO_FUTURO, List.of(10L), null);
 
             assertTrue(resultado.getEstrategias().isEmpty());
             verifyNoInteractions(estrategiaService);
@@ -139,7 +201,7 @@ class AtividadeServiceTest {
             when(problemaService.buscarPorIds(List.of(10L))).thenReturn(List.of(problemaAtivo("P1")));
             when(atividadeRepository.save(any(AtividadeModel.class))).thenAnswer(inv -> inv.getArgument(0));
 
-            AtividadeModel resultado = service.criar(1L, "Lista", List.of(10L), List.of());
+            AtividadeModel resultado = service.criar(1L, "Lista", DESCRICAO, PRAZO_FUTURO, List.of(10L), List.of());
 
             assertTrue(resultado.getEstrategias().isEmpty());
             verifyNoInteractions(estrategiaService);
@@ -155,7 +217,7 @@ class AtividadeServiceTest {
             when(estrategiaService.buscarEntidadesPorIds(List.of(5L))).thenReturn(List.of(estrategia));
             when(atividadeRepository.save(any(AtividadeModel.class))).thenAnswer(inv -> inv.getArgument(0));
 
-            AtividadeModel resultado = service.criar(1L, "Lista", List.of(10L, 10L, 20L), List.of(5L, 5L));
+            AtividadeModel resultado = service.criar(1L, "Lista", DESCRICAO, PRAZO_FUTURO, List.of(10L, 10L, 20L), List.of(5L, 5L));
 
             assertEquals(2, resultado.getProblemas().size());
             assertEquals(1, resultado.getEstrategias().size());
@@ -167,7 +229,7 @@ class AtividadeServiceTest {
         @DisplayName("lança exceção quando a lista de problemas é nula")
         void problemasNulos() {
             BusinessRuleException ex = assertThrows(BusinessRuleException.class,
-                    () -> service.criar(1L, "Lista", null, List.of(5L)));
+                    () -> service.criar(1L, "Lista", DESCRICAO, PRAZO_FUTURO, null, List.of(5L)));
 
             assertEquals("A atividade precisa ter pelo menos um problema", ex.getMessage());
             verifyNoInteractions(turmaService, problemaService, estrategiaService, atividadeRepository);
@@ -177,7 +239,7 @@ class AtividadeServiceTest {
         @DisplayName("lança exceção quando a lista de problemas é vazia")
         void problemasVazios() {
             BusinessRuleException ex = assertThrows(BusinessRuleException.class,
-                    () -> service.criar(1L, "Lista", List.of(), List.of(5L)));
+                    () -> service.criar(1L, "Lista", DESCRICAO, PRAZO_FUTURO, List.of(), List.of(5L)));
 
             assertEquals("A atividade precisa ter pelo menos um problema", ex.getMessage());
             verifyNoInteractions(turmaService, problemaService, estrategiaService, atividadeRepository);
@@ -190,7 +252,7 @@ class AtividadeServiceTest {
                     .thenThrow(new ResourceNotFoundException("Turma não encontrada: 99"));
 
             ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
-                    () -> service.criar(99L, "Lista", List.of(10L), null));
+                    () -> service.criar(99L, "Lista", DESCRICAO, PRAZO_FUTURO, List.of(10L), null));
 
             assertEquals("Turma não encontrada: 99", ex.getMessage());
             verifyNoInteractions(problemaService, estrategiaService, atividadeRepository);
@@ -203,7 +265,7 @@ class AtividadeServiceTest {
             when(problemaService.buscarPorIds(List.of(10L))).thenReturn(List.of(problemaInativo("P1")));
 
             BusinessRuleException ex = assertThrows(BusinessRuleException.class,
-                    () -> service.criar(1L, "Lista", List.of(10L), null));
+                    () -> service.criar(1L, "Lista", DESCRICAO, PRAZO_FUTURO, List.of(10L), null));
 
             assertEquals("Problemas inativos não podem ser associados a atividades", ex.getMessage());
             verify(turma, never()).adicionarAtividade(any(AtividadeModel.class));
@@ -218,7 +280,7 @@ class AtividadeServiceTest {
             when(problemaService.buscarPorIds(List.of(10L))).thenReturn(List.of(p1, p1));
 
             BusinessRuleException ex = assertThrows(BusinessRuleException.class,
-                    () -> service.criar(1L, "Lista", List.of(10L), null));
+                    () -> service.criar(1L, "Lista", DESCRICAO, PRAZO_FUTURO, List.of(10L), null));
 
             assertEquals("O problema já está nesta atividade", ex.getMessage());
             verify(atividadeRepository, never()).save(any(AtividadeModel.class));
@@ -233,7 +295,7 @@ class AtividadeServiceTest {
                     .thenReturn(List.of(estrategia, estrategia));
 
             BusinessRuleException ex = assertThrows(BusinessRuleException.class,
-                    () -> service.criar(1L, "Lista", List.of(10L), List.of(5L)));
+                    () -> service.criar(1L, "Lista", DESCRICAO, PRAZO_FUTURO, List.of(10L), List.of(5L)));
 
             assertEquals("A estratégia já está nesta atividade", ex.getMessage());
             verify(atividadeRepository, never()).save(any(AtividadeModel.class));
@@ -248,7 +310,7 @@ class AtividadeServiceTest {
                     .when(turma).adicionarAtividade(any(AtividadeModel.class));
 
             BusinessRuleException ex = assertThrows(BusinessRuleException.class,
-                    () -> service.criar(1L, "Lista", List.of(10L), null));
+                    () -> service.criar(1L, "Lista", DESCRICAO, PRAZO_FUTURO, List.of(10L), null));
 
             assertEquals("Uma turma encerrada não pode receber novas atividades", ex.getMessage());
             verify(atividadeRepository, never()).save(any(AtividadeModel.class));
@@ -288,7 +350,7 @@ class AtividadeServiceTest {
         @Test
         @DisplayName("valida a turma e retorna as atividades dela")
         void retornaAtividadesDaTurma() {
-            AtividadeModel outra = new AtividadeModel("Lista 2");
+            AtividadeModel outra = new AtividadeModel("Lista 2", DESCRICAO, PRAZO_FUTURO);
             when(atividadeRepository.findByTurmaId(1L)).thenReturn(List.of(atividade, outra));
 
             List<AtividadeModel> resultado = service.listarDaTurma(1L);
