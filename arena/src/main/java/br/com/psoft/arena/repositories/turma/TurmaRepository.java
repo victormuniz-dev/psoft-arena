@@ -3,6 +3,8 @@ package br.com.psoft.arena.repositories.turma;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import br.com.psoft.arena.models.turma.TurmaModel;
 
@@ -27,4 +29,13 @@ public interface TurmaRepository extends JpaRepository<TurmaModel, Long> {
      * @return Uma lista de {@link TurmaModel} associadas ao professor informado.
      */
     List<TurmaModel> findByProfessorResponsavelId(Long professorId);
+
+    /**
+     * Busca todas as turmas em que o estudante está matriculado.
+     *
+     * @param estudanteId Identificador único do estudante.
+     * @return Lista de turmas associadas ao estudante.
+     */
+    @Query("SELECT DISTINCT t FROM TurmaModel t JOIN t.estudantes e WHERE e.id = :estudanteId")
+    List<TurmaModel> findAllByEstudanteId(@Param("estudanteId") Long estudanteId);
 }
