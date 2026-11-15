@@ -29,9 +29,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Representa o modelo de dados de uma Atividade no sistema[cite: 9].
+ * Representa o modelo de dados de uma Atividade no sistema.
  * Gerencia informações como título, descrição, prazo de submissão, status, turma associada,
- * problema, estratégia de avaliação e configurações de LLM vinculadas[cite: 9].
+ * problema, estratégia de avaliação e configurações de LLM vinculadas.
  */
 @Entity
 @Table(name = "tb_atividade")
@@ -74,11 +74,11 @@ public class AtividadeModel {
     private List<ConfiguracaoLlmModel> configuracoesLlm = new ArrayList<>();
 
     /**
-     * Constrói uma nova instância de AtividadeModel com os dados básicos informados[cite: 9].
+     * Constrói uma nova instância de AtividadeModel com os dados básicos informados.
      * 
-     * @param titulo O título da atividade[cite: 9].
-     * @param descricao A descrição da atividade[cite: 9].
-     * @param prazoSubmissao O prazo para submissão da atividade[cite: 9].
+     * @param titulo O título da atividade.
+     * @param descricao A descrição da atividade.
+     * @param prazoSubmissao O prazo para submissão da atividade.
      */
     public AtividadeModel(String titulo, String descricao, LocalDateTime prazoSubmissao) {
         this.titulo = titulo;
@@ -98,9 +98,9 @@ public class AtividadeModel {
     }
 
     /**
-     * Define o problema da atividade, garantindo que ele esteja ativo[cite: 9].
+     * Define o problema da atividade, garantindo que ele esteja ativo.
      * 
-     * @param problema O modelo do problema a ser associado[cite: 9].
+     * @param problema O modelo do problema a ser associado.
      */
     public void definirProblema(ProblemaModel problema) {
         if (problema == null) {
@@ -113,9 +113,9 @@ public class AtividadeModel {
     }
 
     /**
-     * Define a estratégia de avaliação da atividade[cite: 9].
+     * Define a estratégia de avaliação da atividade.
      * 
-     * @param estrategia O modelo da estratégia de avaliação a ser associada[cite: 9].
+     * @param estrategia O modelo da estratégia de avaliação a ser associada.
      */
     public void definirEstrategia(EstrategiaAvaliacaoModel estrategia) {
         if (estrategia == null) {
@@ -125,9 +125,9 @@ public class AtividadeModel {
     }
 
     /**
-     * Adiciona uma configuração de LLM à atividade, associando o vínculo reverso[cite: 9].
+     * Adiciona uma configuração de LLM à atividade, associando o vínculo reverso.
      * 
-     * @param configuracao A configuração de LLM a ser adicionada[cite: 9].
+     * @param configuracao A configuração de LLM a ser adicionada.
      */
     public void adicionarConfiguracaoLlm(ConfiguracaoLlmModel configuracao) {
         if (configuracao == null) {
@@ -138,18 +138,18 @@ public class AtividadeModel {
     }
 
     /**
-     * Retorna uma visualização não modificável das configurações de LLM associadas[cite: 9].
+     * Retorna uma visualização não modificável das configurações de LLM associadas.
      * 
-     * @return Lista imutável de configurações de LLM[cite: 9].
+     * @return Lista imutável de configurações de LLM.
      */
     public List<ConfiguracaoLlmModel> getConfiguracoesLlm() {
         return Collections.unmodifiableList(configuracoesLlm);
     }
 
     /**
-     * Retorna a configuração de LLM marcada como padrão, se existir[cite: 9].
+     * Retorna a configuração de LLM marcada como padrão, se existir.
      * 
-     * @return A configuração padrão ou {@code null} caso não haja nenhuma[cite: 9].
+     * @return A configuração padrão ou {@code null} caso não haja nenhuma.
      */
     public ConfiguracaoLlmModel getConfiguracaoLlmPadrao() {
         return configuracoesLlm.stream()

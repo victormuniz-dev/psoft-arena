@@ -39,16 +39,16 @@ public class AtividadeService {
 
     /**
      * Cria uma nova atividade associada a uma turma, a um problema, a uma estratégia
-     * de avaliação e a uma configuração de LLM padrão[cite: 10].
+     * de avaliação e a uma configuração de LLM padrão.
      * 
-     * @param turmaId ID da turma à qual a atividade pertencerá[cite: 10].
-     * @param titulo Título da atividade[cite: 10].
-     * @param descricao Descrição da atividade[cite: 10].
-     * @param prazoSubmissao Prazo para submissão da atividade[cite: 10].
-     * @param problemaId ID do problema associado à atividade[cite: 10].
-     * @param estrategiaId ID da estratégia de avaliação associada à atividade[cite: 10].
-     * @param configuracaoLlm Dados da configuração de LLM padrão[cite: 10].
-     * @return O {@link AtividadeResponseDto} da atividade criada, sem dados sensíveis[cite: 10].
+     * @param turmaId ID da turma à qual a atividade pertencerá.
+     * @param titulo Título da atividade.
+     * @param descricao Descrição da atividade.
+     * @param prazoSubmissao Prazo para submissão da atividade.
+     * @param problemaId ID do problema associado à atividade.
+     * @param estrategiaId ID da estratégia de avaliação associada à atividade.
+     * @param configuracaoLlm Dados da configuração de LLM padrão.
+     * @return O {@link AtividadeResponseDto} da atividade criada, sem dados sensíveis.
      */
     @Transactional
     public AtividadeResponseDto criar(Long turmaId, String titulo, String descricao,
