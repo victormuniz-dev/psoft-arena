@@ -10,6 +10,8 @@ import br.com.psoft.arena.models.problema.ProblemaModel;
 import br.com.psoft.arena.models.turma.TurmaModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,7 +28,7 @@ import lombok.Setter;
 
 /**
  * Representa o modelo de dados de uma Atividade no sistema[cite: 9].
- * Gerencia informações como título, turma associada, problemas e estratégias de avaliação vinculadas[cite: 9].
+ * Gerencia informações como título, status, turma associada, problemas e estratégias de avaliação vinculadas[cite: 9].
  */
 @Entity
 @Table(name = "tb_atividade")
@@ -40,6 +42,10 @@ public class AtividadeModel {
 
     @Column(nullable = false)
     private String titulo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusAtividade status = StatusAtividade.ABERTA;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "turma_id", nullable = false)
@@ -71,6 +77,17 @@ public class AtividadeModel {
      */
     public AtividadeModel(String titulo) {
         this.titulo = titulo;
+    }
+
+    /**
+     * Encerra a atividade se ela estiver aberta.
+     * Lança uma exceção se a atividade já estiver encerrada.
+     */
+    public void encerrar() {
+        if (status == StatusAtividade.CONCLUIDA) {
+            throw new BusinessRuleException("A atividade já está encerrada");
+        }
+        this.status = StatusAtividade.CONCLUIDA;
     }
 
     /**

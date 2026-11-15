@@ -307,4 +307,35 @@ class AtividadeModelTest {
             assertTrue(visaoEstrategias.contains(estrategia));
         }
     }
+
+    @Nested
+    @DisplayName("ciclo de vida")
+    class CicloDeVida {
+
+        @Test
+        @DisplayName("toda atividade nasce com status ABERTA")
+        void nasceAberta() {
+            assertEquals(StatusAtividade.ABERTA, atividade.getStatus());
+        }
+
+        @Test
+        @DisplayName("encerrar altera o status para CONCLUIDA")
+        void encerrarAlteraStatus() {
+            atividade.encerrar();
+
+            assertEquals(StatusAtividade.CONCLUIDA, atividade.getStatus());
+        }
+
+        @Test
+        @DisplayName("não permite encerrar uma atividade já concluída")
+        void naoPermiteEncerrarConcluida() {
+            atividade.encerrar();
+
+            BusinessRuleException ex = assertThrows(BusinessRuleException.class,
+                    () -> atividade.encerrar());
+
+            assertEquals("A atividade já está encerrada", ex.getMessage());
+            assertEquals(StatusAtividade.CONCLUIDA, atividade.getStatus());
+        }
+    }
 }
