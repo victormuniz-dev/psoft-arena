@@ -37,8 +37,12 @@ import br.com.psoft.arena.services.submissao.FilaSubmissao;
 import br.com.psoft.arena.services.submissao.SubmissaoService;
 import br.com.psoft.arena.support.AvaliadorControlavel;
 
+import org.springframework.context.annotation.Import;
+import br.com.psoft.arena.support.ValidadorSubmissaoPermissivoConfig;
+
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(ValidadorSubmissaoPermissivoConfig.class)
 class SubmissaoControllerTest {
 
     private static final Duration TEMPO_MAXIMO = Duration.ofSeconds(20);

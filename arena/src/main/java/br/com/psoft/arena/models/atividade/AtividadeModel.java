@@ -97,6 +97,21 @@ public class AtividadeModel {
         this.status = StatusAtividade.CONCLUIDA;
     }
 
+        /**
+     * Garante que a atividade aceita novas submissões (US8): precisa estar aberta
+     * e o prazo de submissão não pode ter sido ultrapassado.
+     *
+     * @param agora Instante da tentativa de submissão.
+     */
+    public void garantirAceitaSubmissoes(LocalDateTime agora) {
+        if (status != StatusAtividade.ABERTA) {
+            throw new BusinessRuleException("A atividade não aceita novas submissões porque está concluída");
+        }
+        if (agora.isAfter(prazoSubmissao)) {
+            throw new BusinessRuleException("O prazo de submissão da atividade já expirou");
+        }
+    }
+
     /**
      * Define o problema da atividade, garantindo que ele esteja ativo.
      * 

@@ -34,6 +34,7 @@ public class SubmissaoService {
     private final SubmissaoProcessador submissaoProcessador;
     private final SubmissaoTransicaoService submissaoTransicaoService;
     private final ValidadorSubmissao validadorSubmissao;
+    private final ValidadorCodigoFonte validadorCodigoFonte;
 
     @Transactional
     public SubmissaoModel registrar(
@@ -53,10 +54,12 @@ public class SubmissaoService {
             throw new BusinessRuleException("O código-fonte da submissão não pode ser vazio.");
         }
 
-        validadorSubmissao.validar(estudanteId, atividadeId);
+        validadorCodigoFonte.validar(codigoFonte);
 
         EstudanteModel estudante = estudanteRepository.findById(estudanteId)
             .orElseThrow(() -> new ResourceNotFoundException("Estudante", estudanteId));
+
+        validadorSubmissao.validar(estudanteId, atividadeId);
 
         Integer proximaVersao = submissaoRepository
             .findTopByEstudanteIdAndAtividadeIdOrderByVersaoDesc(estudanteId, atividadeId)
