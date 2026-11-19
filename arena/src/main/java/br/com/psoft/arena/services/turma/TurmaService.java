@@ -16,7 +16,7 @@ import br.com.psoft.arena.models.professor.ProfessorModel;
 import br.com.psoft.arena.models.turma.TurmaModel;
 import br.com.psoft.arena.repositories.turma.TurmaRepository;
 import br.com.psoft.arena.services.estudante.EstudanteService;
-import br.com.psoft.arena.services.projessor.ProfessorService;
+import br.com.psoft.arena.services.professor.ProfessorService;
 import lombok.RequiredArgsConstructor;
 
 /**

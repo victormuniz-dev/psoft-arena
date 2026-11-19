@@ -31,3 +31,42 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Artefatos locais de build (Maven offline) ###
+.m2repo/
+.mvn-home/
+spec.txt
+
+### Logs e arquivos temporários ###
+*.log
+*.tmp
+*.bak
+*.orig
+*.rej
+*.hprof
+hs_err_pid*
+replay_pid*
+
+### Banco de dados local (H2) ###
+*.db
+*.mv.db
+*.trace.db
+*.lock.db
+
+### Arquivos de SO ###
+.DS_Store
+Thumbs.db
+desktop.ini
+
+### Variáveis de ambiente e segredos ###
+.env
+.env.*
+*.pem
+*.p12
+*.jks
+application-local.properties
+application-local.yml
+application-local.yaml
+
+### Dump de execução do Maven ###
+*.dumpstream
