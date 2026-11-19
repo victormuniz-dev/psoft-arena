@@ -7,8 +7,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+
 @Entity
 @Table(name = "estudantes")
+
 public class EstudanteModel {
 
     @Id
@@ -60,4 +62,9 @@ public class EstudanteModel {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
 }
