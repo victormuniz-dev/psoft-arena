@@ -1,10 +1,10 @@
 package br.com.psoft.arena.client;
 
-import br.com.psoft.arena.models.llm.ConfiguracaoLlmModel;
-import br.com.psoft.arena.exception.*;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -13,9 +13,11 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import br.com.psoft.arena.exception.LLMIndisponivelException;
+import br.com.psoft.arena.exception.RespostaLLMInvalidaException;
+import br.com.psoft.arena.models.llm.ConfiguracaoLlmModel;
 
 @Component
 public class GrokClient implements LLMClient {
@@ -25,14 +27,22 @@ public class GrokClient implements LLMClient {
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
 
+    @Autowired
     public GrokClient(RestClient.Builder builder, ObjectMapper objectMapper) {
-        var factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(Duration.ofSeconds(5));
-        factory.setReadTimeout(Duration.ofSeconds(60));
+        this(criarRestClient(builder), objectMapper);
+    }
 
-        this.restClient = builder.baseUrl(BASE_URL).requestFactory(factory).build();
+    GrokClient(RestClient restClient, ObjectMapper objectMapper) {
+        this.restClient = restClient;
         this.objectMapper = objectMapper;
     }
+
+private static RestClient criarRestClient(RestClient.Builder builder) {
+    var factory = new SimpleClientHttpRequestFactory();
+    factory.setConnectTimeout(Duration.ofSeconds(5));
+    factory.setReadTimeout(Duration.ofSeconds(60));
+    return builder.baseUrl(BASE_URL).requestFactory(factory).build();
+}
 
     @Override
     public RespostaLLM avaliar(ConfiguracaoLlmModel llm, String prompt) {

@@ -1,5 +1,7 @@
 package br.com.psoft.arena.models.resultado_llm;
 
+import java.math.BigDecimal;
+
 import br.com.psoft.arena.models.avaliacao.AvaliacaoModel;
 import br.com.psoft.arena.models.llm.ConfiguracaoLlmModel;
 import jakarta.persistence.Column;
@@ -32,8 +34,8 @@ public class ResultadoLLMModel {
     @JoinColumn(name = "llm_id", nullable = false)
     private ConfiguracaoLlmModel llm;
 
-    @Column(nullable = false)
-    private double nota;
+    @Column(nullable = false, precision = 3, scale = 1)
+    private BigDecimal nota;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String evidencias;
@@ -41,18 +43,16 @@ public class ResultadoLLMModel {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String justificativa;
 
-    public ResultadoLLMModel(ConfiguracaoLlmModel llm, double nota,
+    public ResultadoLLMModel(ConfiguracaoLlmModel llm, BigDecimal nota,
                              String evidencias, String justificativa) {
         if (llm == null) {
-            throw new IllegalArgumentException("O LLM é obrigatório");
-        }
-        if (Double.isNaN(nota) || nota < 0 || nota > 10) {
-            throw new IllegalArgumentException("A nota deve estar entre 0 e 10");
-        }
-        if (evidencias == null || evidencias.isBlank()
-                || justificativa == null || justificativa.isBlank()) {
-            throw new IllegalArgumentException("Evidências e justificativa são obrigatórias");
-        }
+        throw new IllegalArgumentException("O LLM é obrigatório");
+    }
+    if (nota == null
+            || nota.compareTo(BigDecimal.ZERO) < 0
+            || nota.compareTo(BigDecimal.TEN) > 0) {
+        throw new IllegalArgumentException("A nota deve estar entre 0 e 10");
+    }
         this.llm = llm;
         this.nota = nota;
         this.evidencias = evidencias;
