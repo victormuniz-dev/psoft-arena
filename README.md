@@ -1,6 +1,6 @@
 # Arena – Avaliação de Soluções de Projeto de Software
 
-![Diagrama de classes UML do modelo de domínio](docs/uml_dominio_arena.png)
+![Diagrama de classes UML do modelo de domínio](/uml_dominio_arena.png)
 
 *Modelo de domínio (US1 a US10). Atributos e métodos foram deduzidos da especificação.*
 
