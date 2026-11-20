@@ -16,8 +16,8 @@ public record AvaliacaoResponseDto(
     public static AvaliacaoResponseDto de(AvaliacaoModel avaliacao) {
         return new AvaliacaoResponseDto(
                 avaliacao.getId(),
-                avaliacao.getSubmissao().getId(),          
-                avaliacao.getNotaFinal().getNota(),        
+                avaliacao.getSubmissao().getId(),
+                avaliacao.getNotaFinal().getNota() != null ? avaliacao.getNotaFinal().getNota().doubleValue() : 0.0,
                 avaliacao.getNotaFinal().getEvidencias(),
                 avaliacao.getNotaFinal().getJustificativa(),
                 avaliacao.getResultados().stream()

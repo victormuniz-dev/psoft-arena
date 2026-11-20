@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -30,6 +31,7 @@ import br.com.psoft.arena.models.atividade.AtividadeModel;
 import br.com.psoft.arena.models.avaliacao.AvaliacaoModel;
 import br.com.psoft.arena.models.llm.ConfiguracaoLlmModel;
 import br.com.psoft.arena.models.submissao.SubmissaoModel;        
+import br.com.psoft.arena.repositories.atividade.AtividadeRepository;
 import br.com.psoft.arena.repositories.avaliacao.AvaliacaoRepository;         
 import br.com.psoft.arena.repositories.submissao.SubmissaoRepository;         
 import br.com.psoft.arena.client.LLMClient;                  
@@ -40,9 +42,11 @@ import jakarta.persistence.EntityNotFoundException;
 class AvaliacaoServiceTest {
 
     private static final Long SUBMISSAO_ID = 1L;
+    private static final Long ATIVIDADE_ID = 10L;
     private static final String PROMPT = "prompt montado";
 
     @Mock private SubmissaoRepository submissaoRepository;
+    @Mock private AtividadeRepository atividadeRepository;
     @Mock private AvaliacaoRepository avaliacaoRepository;
     @Mock private PromptBuilder promptBuilder;
     @Mock private LLMClient llmClient;
@@ -53,6 +57,7 @@ class AvaliacaoServiceTest {
     void setUp() {
         service = new AvaliacaoService(
                 submissaoRepository,
+                atividadeRepository,
                 avaliacaoRepository,
                 promptBuilder,
                 llmClient,
@@ -80,8 +85,9 @@ class AvaliacaoServiceTest {
         SubmissaoModel submissao = mock(SubmissaoModel.class);
         AtividadeModel atividade = mock(AtividadeModel.class);
 
+        when(submissao.getAtividadeId()).thenReturn(ATIVIDADE_ID);
         when(submissaoRepository.findById(SUBMISSAO_ID)).thenReturn(Optional.of(submissao));
-        when(submissao.getAtividade()).thenReturn(atividade);
+        when(atividadeRepository.findById(ATIVIDADE_ID)).thenReturn(Optional.of(atividade));
         when(atividade.getConfiguracoesLlm()).thenReturn(llms);                 
         return submissao;
     }
@@ -145,7 +151,7 @@ class AvaliacaoServiceTest {
         avaliacaoNaoExiste();
         ConfiguracaoLlmModel grok = llm("grok");
         SubmissaoModel submissao = submissaoComLlms(List.of(grok));
-        when(promptBuilder.montar(submissao)).thenReturn(PROMPT);
+        when(promptBuilder.montar(eq(submissao), any(AtividadeModel.class))).thenReturn(PROMPT);
         when(llmClient.avaliar(grok, PROMPT)).thenReturn(resposta(8.5, "boa estrutura", "código coeso"));
 
         service.avaliar(SUBMISSAO_ID);
@@ -166,7 +172,7 @@ class AvaliacaoServiceTest {
         ConfiguracaoLlmModel grok = llm("grok");
         ConfiguracaoLlmModel outro = llm("outro");
         SubmissaoModel submissao = submissaoComLlms(List.of(grok, outro));
-        when(promptBuilder.montar(submissao)).thenReturn(PROMPT);
+        when(promptBuilder.montar(eq(submissao), any(AtividadeModel.class))).thenReturn(PROMPT);
         when(llmClient.avaliar(grok, PROMPT)).thenReturn(resposta(8.0, "e1", "j1"));
         when(llmClient.avaliar(outro, PROMPT)).thenReturn(resposta(6.0, "e2", "j2"));
 
@@ -187,12 +193,12 @@ class AvaliacaoServiceTest {
         ConfiguracaoLlmModel grok = llm("grok");
         ConfiguracaoLlmModel outro = llm("outro");
         SubmissaoModel submissao = submissaoComLlms(List.of(grok, outro));
-        when(promptBuilder.montar(submissao)).thenReturn(PROMPT);
+        when(promptBuilder.montar(eq(submissao), any(AtividadeModel.class))).thenReturn(PROMPT);
         when(llmClient.avaliar(any(), any())).thenReturn(resposta(7.0, "e", "j"));
 
         service.avaliar(SUBMISSAO_ID);
 
-        verify(promptBuilder, times(1)).montar(submissao);   // montado uma vez só
+        verify(promptBuilder, times(1)).montar(eq(submissao), any(AtividadeModel.class));   // montado uma vez só
         verify(llmClient).avaliar(grok, PROMPT);
         verify(llmClient).avaliar(outro, PROMPT);
     }
@@ -205,7 +211,7 @@ class AvaliacaoServiceTest {
         ConfiguracaoLlmModel grok = llm("grok");
         ConfiguracaoLlmModel outro = llm("outro");
         SubmissaoModel submissao = submissaoComLlms(List.of(grok, outro));
-        when(promptBuilder.montar(submissao)).thenReturn(PROMPT);
+        when(promptBuilder.montar(eq(submissao), any(AtividadeModel.class))).thenReturn(PROMPT);
         when(llmClient.avaliar(grok, PROMPT)).thenReturn(resposta(8.0, "e1", "j1"));
         when(llmClient.avaliar(outro, PROMPT)).thenThrow(new LLMIndisponivelException("fora do ar"));
 
@@ -219,7 +225,7 @@ class AvaliacaoServiceTest {
         avaliacaoNaoExiste();
         ConfiguracaoLlmModel grok = llm("grok");
         SubmissaoModel submissao = submissaoComLlms(List.of(grok));
-        when(promptBuilder.montar(submissao)).thenReturn(PROMPT);
+        when(promptBuilder.montar(eq(submissao), any(AtividadeModel.class))).thenReturn(PROMPT);
         when(llmClient.avaliar(grok, PROMPT)).thenThrow(new RespostaLLMInvalidaException("sem nota"));
 
         assertThrows(RespostaLLMInvalidaException.class, () -> service.avaliar(SUBMISSAO_ID));
@@ -232,9 +238,45 @@ class AvaliacaoServiceTest {
         avaliacaoNaoExiste();
         ConfiguracaoLlmModel grok = llm("grok");
         SubmissaoModel submissao = submissaoComLlms(List.of(grok));
-        when(promptBuilder.montar(submissao)).thenReturn(PROMPT);
+        when(promptBuilder.montar(eq(submissao), any(AtividadeModel.class))).thenReturn(PROMPT);
         when(llmClient.avaliar(grok, PROMPT)).thenThrow(new LLMIndisponivelException("timeout"));
 
         assertThrows(AvaliacaoFalhaException.class, () -> service.avaliar(SUBMISSAO_ID));
+    }
+
+    @Test
+    void deveFalharQuandoNotaForaDoIntervaloPermitido() {
+        avaliacaoNaoExiste();
+        ConfiguracaoLlmModel grok = llm("grok");
+        SubmissaoModel submissao = submissaoComLlms(List.of(grok));
+        when(promptBuilder.montar(eq(submissao), any(AtividadeModel.class))).thenReturn(PROMPT);
+        when(llmClient.avaliar(grok, PROMPT)).thenReturn(resposta(11.0, "evidencias", "justificativa"));
+
+        assertThrows(AvaliacaoFalhaException.class, () -> service.avaliar(SUBMISSAO_ID));
+        verify(avaliacaoRepository, never()).save(any());
+    }
+
+    @Test
+    void deveFalharQuandoEvidenciasOuJustificativaForemVazias() {
+        avaliacaoNaoExiste();
+        ConfiguracaoLlmModel grok = llm("grok");
+        SubmissaoModel submissao = submissaoComLlms(List.of(grok));
+        when(promptBuilder.montar(eq(submissao), any(AtividadeModel.class))).thenReturn(PROMPT);
+        when(llmClient.avaliar(grok, PROMPT)).thenReturn(resposta(8.0, "", "justificativa"));
+
+        assertThrows(AvaliacaoFalhaException.class, () -> service.avaliar(SUBMISSAO_ID));
+        verify(avaliacaoRepository, never()).save(any());
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoAtividadeNaoExiste() {
+        avaliacaoNaoExiste();
+        SubmissaoModel submissao = mock(SubmissaoModel.class);
+        when(submissao.getAtividadeId()).thenReturn(ATIVIDADE_ID);
+        when(submissaoRepository.findById(SUBMISSAO_ID)).thenReturn(Optional.of(submissao));
+        when(atividadeRepository.findById(ATIVIDADE_ID)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> service.avaliar(SUBMISSAO_ID));
+        verify(avaliacaoRepository, never()).save(any());
     }
 }

@@ -1,16 +1,39 @@
 package br.com.psoft.arena.services.avaliacao;
 
+import org.springframework.stereotype.Component;
+
 import br.com.psoft.arena.models.atividade.AtividadeModel;
 import br.com.psoft.arena.models.problema.ProblemaModel;
 import br.com.psoft.arena.models.estrategia.EstrategiaAvaliacaoModel;
 import br.com.psoft.arena.models.submissao.SubmissaoModel;
 
+@Component
 public class PromptBuilder {
 
-    public String montar(SubmissaoModel submissao) {
-        AtividadeModel atividade = submissao.getAtividade();
+    public String montar(SubmissaoModel submissao, AtividadeModel atividade) {
         ProblemaModel problema = atividade.getProblema();
-        EstrategiaAvaliacaoModel estrategia = atividade.getEstrategia(); // AJUSTE
+        EstrategiaAvaliacaoModel estrategia = atividade.getEstrategia();
+
+        String requisitosFuncionais = problema != null && problema.getRequisitosFuncionais() != null
+                ? String.join("\n- ", problema.getRequisitosFuncionais())
+                : "";
+        if (!requisitosFuncionais.isBlank()) {
+            requisitosFuncionais = "- " + requisitosFuncionais;
+        }
+
+        String requisitosProjeto = problema != null && problema.getRequisitosProjeto() != null
+                ? String.join("\n- ", problema.getRequisitosProjeto())
+                : "";
+        if (!requisitosProjeto.isBlank()) {
+            requisitosProjeto = "- " + requisitosProjeto;
+        }
+
+        String promptEstrategia = estrategia != null ? estrategia.getPromptAvaliacao() : "";
+        String tituloProblema = problema != null ? problema.getTitulo() : "";
+        String descricaoProblema = problema != null ? problema.getDescricao() : "";
+        String codigoFonte = submissao != null && submissao.getCodigoFonte() != null
+                ? submissao.getCodigoFonte()
+                : "";
 
         return """
                 %s
@@ -42,11 +65,11 @@ public class PromptBuilder {
                 }
                 "evidencias" e "justificativa" devem ser strings (texto corrido), não listas.
                 """.formatted(
-                estrategia.getPrompt(),               
-                problema.getTitulo(),
-                problema.getDescricao(),
-                problema.getRequisitosFuncionais(),
-                problema.getRequisitosProjeto(),
-                submissao.getCodigoFonte());
+                promptEstrategia,
+                tituloProblema,
+                descricaoProblema,
+                requisitosFuncionais,
+                requisitosProjeto,
+                codigoFonte);
     }
 }

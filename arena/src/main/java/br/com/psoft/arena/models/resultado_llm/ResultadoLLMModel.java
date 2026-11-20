@@ -59,8 +59,7 @@ public class ResultadoLLMModel {
         this.justificativa = justificativa;
     }
 
-    // Visibilidade de pacote: só a AvaliacaoModel (mesmo pacote) faz o vínculo
-    void vincularAvaliacao(AvaliacaoModel avaliacao) {
+    public void vincularAvaliacao(AvaliacaoModel avaliacao) {
         this.avaliacao = avaliacao;
     }
 }

@@ -11,7 +11,7 @@ public record ResultadoLLMResponseDto(
     public static ResultadoLLMResponseDto de(ResultadoLLMModel resultado) {
         return new ResultadoLLMResponseDto(
                 resultado.getLlm().getNomeModelo(), // AJUSTE: getter do nome do modelo
-                resultado.getNota(),
+                resultado.getNota() != null ? resultado.getNota().doubleValue() : 0.0,
                 resultado.getEvidencias(),
                 resultado.getJustificativa());
     }

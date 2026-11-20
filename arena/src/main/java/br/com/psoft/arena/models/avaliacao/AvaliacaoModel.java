@@ -44,10 +44,26 @@ public class AvaliacaoModel {
     @OneToMany(mappedBy = "avaliacao", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ResultadoLLMModel> resultados = new ArrayList<>();
 
-     public AvaliacaoModel(SubmissaoModel submissao, NotaFinal notaFinal) {
+    public AvaliacaoModel(SubmissaoModel submissao, NotaFinal notaFinal) {
         this.submissao = submissao;
         this.notaFinal = notaFinal;
         this.dataAvaliacao = LocalDateTime.now();
+    }
+
+    public AvaliacaoModel(SubmissaoModel submissao, NotaFinal notaFinal, List<ResultadoLLMModel> resultados) {
+        this(submissao, notaFinal);
+        if (resultados != null) {
+            for (ResultadoLLMModel resultado : resultados) {
+                adicionarResultado(resultado);
+            }
+        }
+    }
+
+    public void adicionarResultado(ResultadoLLMModel resultado) {
+        if (resultado != null) {
+            this.resultados.add(resultado);
+            resultado.vincularAvaliacao(this);
+        }
     }
 }
 
