@@ -1,4 +1,4 @@
-package br.com.psoft.arena.repositories.consultaEstudante;
+package br.com.psoft.arena.repositories.estudante.consultaEstudante;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

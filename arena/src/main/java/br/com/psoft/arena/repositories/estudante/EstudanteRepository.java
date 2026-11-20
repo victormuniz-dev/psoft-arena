@@ -10,4 +10,5 @@ import br.com.psoft.arena.models.estudante.EstudanteModel;
 @Repository
 public interface EstudanteRepository extends JpaRepository<EstudanteModel, Long> {
     Optional<EstudanteModel> findByMatricula(String matricula);
+    boolean existsByMatricula(String matricula);
 }
