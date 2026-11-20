@@ -1,0 +1,23 @@
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\client\GrokClientTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\controllers\atividade\AtividadeControllerTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\controllers\estrategia\EstrategiaAvaliacaoControllerTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\controllers\estudante\consultaEstudante\ConsultaAtividadeEstudanteControllerTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\controllers\problema\ProblemaControllerTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\controllers\turma\TurmaControllerTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\dtos\llm\ConfiguracaoLlmResponseDtoTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\models\atividade\AtividadeModelTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\models\estrategia\ EstrategiaAvaliacaoModelTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\models\llm\ConfiguracaoLlmModelTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\models\turma\TurmaModelTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\repositories\atividade\AtividadeRepositoryTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\repositories\consultaEstudante\ConsultaAtividadeRepositoryTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\repositories\estrategia\EstrategiaAvaliacaoRepositoryTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\repositories\turma\TurmaRepositoryTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\services\atividade\AtividadeServiceTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\services\avaliacao\AvaliacaoServiceTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\services\avaliacao\CalculadoraNotaFinalTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\services\criptografia\CriptografiaServiceTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\services\estrategia\EstrategiaAvaliativaServiceImplTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\services\estudante\consultaEstudante\ConsultaAtividadeEstudanteServiceImplTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\services\problema\ProblemaServiceTest.java
+C:\Users\joaov\Downloads\arena\arena\src\test\java\br\com\psoft\arena\services\turma\TurmaServiceTest.java

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.psoft.arena.dtos.estudante.EstudanteDTO;
+import br.com.psoft.arena.dtos.estudante.EstudanteResponseDTO;
 import br.com.psoft.arena.dtos.turma.TurmaRequestDto;
 import br.com.psoft.arena.dtos.turma.TurmaResponseDto;
 import br.com.psoft.arena.dtos.turma.TurmaUpdateDto;
@@ -100,7 +100,7 @@ public class TurmaController {
      * @return Uma lista de {@link EstudanteDTO} com os estudantes matriculados.
      */
     @GetMapping("/{id}/estudantes")
-    public List<EstudanteDTO> listarEstudantes(@PathVariable Long id) {
+    public List<EstudanteResponseDTO> listarEstudantes(@PathVariable Long id) {
         return turmaService.listarEstudantes(id);
     }
 

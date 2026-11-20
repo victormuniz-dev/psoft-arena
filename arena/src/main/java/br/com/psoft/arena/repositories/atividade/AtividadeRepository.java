@@ -3,6 +3,8 @@ package br.com.psoft.arena.repositories.atividade;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import br.com.psoft.arena.models.atividade.AtividadeModel;
 
@@ -26,5 +28,15 @@ public interface AtividadeRepository extends JpaRepository<AtividadeModel, Long>
      * @param problemaId ID do problema.
      * @return {@code true} se existir pelo menos uma atividade vinculada ao problema, caso contrário {@code false}.
      */
-    boolean existsByProblemasId(Long problemaId);
+    boolean existsByProblemaId(Long problemaId);
+
+    /**
+     * Lista todas as atividades vinculadas às turmas em que o estudante está matriculado.
+     * Inclui tanto atividades abertas quanto concluídas.
+     *
+     * @param estudanteId Identificador único do estudante.
+     * @return Lista de atividades associadas às turmas do estudante.
+     */
+    @Query("SELECT DISTINCT a FROM AtividadeModel a JOIN a.turma t JOIN t.estudantes e WHERE e.id = :estudanteId")
+    List<AtividadeModel> findAllByEstudanteId(@Param("estudanteId") Long estudanteId);
 }

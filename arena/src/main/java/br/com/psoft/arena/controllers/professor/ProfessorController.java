@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.psoft.arena.dtos.professor.ProfessorRequestDto;
 import br.com.psoft.arena.dtos.professor.ProfessorResponseDto;
 import br.com.psoft.arena.models.professor.ProfessorModel;
-import br.com.psoft.arena.services.projessor.ProfessorService;
+import br.com.psoft.arena.services.professor.ProfessorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
