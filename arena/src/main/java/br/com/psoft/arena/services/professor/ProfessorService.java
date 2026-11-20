@@ -1,4 +1,4 @@
-package br.com.psoft.arena.services.projessor;
+package br.com.psoft.arena.services.professor;
 
 import java.util.List;
 

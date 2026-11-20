@@ -26,7 +26,6 @@ public class EstudanteModel {
     @Column(nullable = false)
     private String email;
 
-    
     public EstudanteModel() {}
 
     public EstudanteModel(String nome, String matricula, String email) {
@@ -62,9 +61,13 @@ public class EstudanteModel {
     public void setEmail(String email) {
         this.email = email;
     }
+<<<<<<< HEAD
 
     public void setId(Long id) {
         this.id = id;
     }
     
 }
+=======
+}
+>>>>>>> origin/entrega_etapa2
