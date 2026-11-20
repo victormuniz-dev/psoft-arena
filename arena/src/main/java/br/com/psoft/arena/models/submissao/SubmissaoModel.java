@@ -177,6 +177,10 @@ public class SubmissaoModel {
             ? null
             : observacao;
 
+        String avisoResultado = estadoNovo == StatusSubmissao.CONCLUIDA
+            ? " O resultado da avaliação está disponível para consulta."
+            : "";
+
         System.out.println(
             "[PSoft Arena] Notificação para o estudante " + matricula
                 + ": submissão " + identificacao
@@ -184,6 +188,7 @@ public class SubmissaoModel {
                 + " " + descricaoTransicao
                 + " em " + dataHora + "."
                 + (motivo == null ? "" : " (" + motivo + ")")
+                + avisoResultado
         );
     }
 

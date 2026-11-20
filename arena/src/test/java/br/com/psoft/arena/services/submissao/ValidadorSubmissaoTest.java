@@ -35,8 +35,16 @@ class ValidadorSubmissaoTest {
     @Autowired
     private HistoricoStatusSubmissaoRepository historicoRepository;
 
+    @Autowired
+    private br.com.psoft.arena.repositories.notificacao.NotificacaoRepository notificacaoRepository;
+
+    @Autowired
+    private br.com.psoft.arena.repositories.avaliacao.AvaliacaoRepository avaliacaoRepository;
+
     @Test
     void deveDelegarAValidacaoAoValidadorRegistrado() {
+        notificacaoRepository.deleteAll();
+        avaliacaoRepository.deleteAll();
         historicoRepository.deleteAll();
         submissaoRepository.deleteAll();
         estudanteRepository.deleteAll();

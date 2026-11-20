@@ -73,6 +73,12 @@ class SubmissaoControllerTest {
     @Autowired
     private ThreadPoolTaskExecutor submissaoExecutor;
 
+    @Autowired
+    private br.com.psoft.arena.repositories.notificacao.NotificacaoRepository notificacaoRepository;
+
+    @Autowired
+    private br.com.psoft.arena.repositories.avaliacao.AvaliacaoRepository avaliacaoRepository;
+
     private EstudanteModel estudante;
 
     @BeforeEach
@@ -80,6 +86,8 @@ class SubmissaoControllerTest {
         avaliadorControlavel.reiniciar();
         aguardarFilaOciosa();
 
+        notificacaoRepository.deleteAll();
+        avaliacaoRepository.deleteAll();
         historicoRepository.deleteAll();
         submissaoRepository.deleteAll();
         estudanteRepository.deleteAll();

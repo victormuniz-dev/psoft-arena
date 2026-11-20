@@ -11,6 +11,8 @@ import br.com.psoft.arena.models.avaliacao.AvaliacaoModel;
 @Repository
 public interface AvaliacaoRepository extends JpaRepository<AvaliacaoModel, Long> {
 
-    @EntityGraph(attributePaths = "resultados")
+    @EntityGraph(attributePaths = {"resultados", "resultados.llm"})
     Optional<AvaliacaoModel> findBySubmissaoId(Long submissaoId);
+
+    boolean existsBySubmissaoId(Long submissaoId);
 }
