@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.com.psoft.arena.dtos.estudante.EstudanteDTO;
+import br.com.psoft.arena.dtos.estudante.EstudanteResponseDTO;
 import br.com.psoft.arena.dtos.turma.TurmaRequestDto;
 import br.com.psoft.arena.dtos.turma.TurmaResponseDto;
 import br.com.psoft.arena.dtos.turma.TurmaUpdateDto;
@@ -16,7 +16,7 @@ import br.com.psoft.arena.models.professor.ProfessorModel;
 import br.com.psoft.arena.models.turma.TurmaModel;
 import br.com.psoft.arena.repositories.turma.TurmaRepository;
 import br.com.psoft.arena.services.estudante.EstudanteService;
-import br.com.psoft.arena.services.projessor.ProfessorService;
+import br.com.psoft.arena.services.professor.ProfessorService;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -113,12 +113,11 @@ public class TurmaService {
      * @return Uma lista de {@link EstudanteDTO} correspondente aos estudantes.
      */
     @Transactional(readOnly = true)
-    public List<EstudanteDTO> listarEstudantes(Long turmaId) {
-        return buscarEntidadePorId(turmaId).getEstudantes().stream()
-                .map(e -> new EstudanteDTO(e.getNome(), e.getMatricula(), e.getEmail()))
-                .toList();
+    public List<EstudanteResponseDTO> listarEstudantes(Long turmaId) {
+    return buscarEntidadePorId(turmaId).getEstudantes().stream()
+            .map(EstudanteResponseDTO::from)
+            .toList();
     }
-
     /**
      * Adiciona um estudante à turma utilizando a matrícula do estudante.
      * 
@@ -129,7 +128,7 @@ public class TurmaService {
     @Transactional
     public TurmaResponseDto adicionarEstudante(Long turmaId, String matricula) {
         TurmaModel turma = buscarEntidadePorId(turmaId);
-        EstudanteModel estudante = estudanteService.consultarPorMatricula(matricula);
+        EstudanteModel estudante = estudanteService.buscarPorMatricula(matricula);
         turma.adicionarEstudante(estudante);
         return TurmaResponseDto.de(turma);
     }
@@ -144,7 +143,7 @@ public class TurmaService {
     @Transactional
     public TurmaResponseDto removerEstudante(Long turmaId, String matricula) {
         TurmaModel turma = buscarEntidadePorId(turmaId);
-        EstudanteModel estudante = estudanteService.consultarPorMatricula(matricula);
+        EstudanteModel estudante = estudanteService.buscarPorMatricula(matricula);
         turma.removerEstudante(estudante);
         return TurmaResponseDto.de(turma);
     }
