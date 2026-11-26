@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.psoft.arena.exception.ResourceNotFoundException;
 import br.com.psoft.arena.models.submissao.SubmissaoModel;
 import br.com.psoft.arena.repositories.submissao.SubmissaoRepository;
+import br.com.psoft.arena.services.notificacao.NotificacaoService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class SubmissaoTransicaoService {
 
     private final SubmissaoRepository submissaoRepository;
+    private final NotificacaoService notificacaoService;
 
     @Transactional
     public SubmissaoModel encaminharParaFila(Long submissaoId) {
@@ -34,6 +36,7 @@ public class SubmissaoTransicaoService {
     public SubmissaoModel concluir(Long submissaoId) {
         SubmissaoModel submissao = buscar(submissaoId);
         submissao.concluir();
+        notificacaoService.notificarResultadoDisponivel(submissao);
 
         return submissao;
     }

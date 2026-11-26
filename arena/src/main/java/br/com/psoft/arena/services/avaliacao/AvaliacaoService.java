@@ -8,6 +8,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.psoft.arena.models.submissao.StatusSubmissao;
+import br.com.psoft.arena.exception.BusinessRuleException;
+import br.com.psoft.arena.dtos.avaliacao.ResultadoAvaliacaoResponseDto;
 import br.com.psoft.arena.client.LLMClient;
 import br.com.psoft.arena.client.RespostaLLM;
 import br.com.psoft.arena.exception.AvaliacaoFalhaException;
@@ -96,4 +99,26 @@ public class AvaliacaoService {
 
         return avaliacaoRepository.save(avaliacao);
     }
+
+    @Transactional(readOnly = true)
+    public ResultadoAvaliacaoResponseDto consultarResultado(
+        Long estudanteId,
+        Long submissaoId
+    ) {
+        SubmissaoModel submissao = submissaoRepository
+            .findByIdAndEstudanteId(submissaoId, estudanteId)
+            .orElseThrow(() -> new ResourceNotFoundException("Submissão", submissaoId));
+
+        if (submissao.getStatus() != StatusSubmissao.CONCLUIDA) {
+            return ResultadoAvaliacaoResponseDto.indisponivel(submissao);
+        }
+
+        AvaliacaoModel avaliacao = avaliacaoRepository.findBySubmissaoId(submissaoId)
+            .orElseThrow(() -> new BusinessRuleException(
+                "A submissão está concluída, mas sua avaliação não foi encontrada."
+            ));
+
+        return ResultadoAvaliacaoResponseDto.disponivel(avaliacao);
+    }
+
 }
