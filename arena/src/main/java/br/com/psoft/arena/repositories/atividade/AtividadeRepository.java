@@ -1,7 +1,9 @@
 package br.com.psoft.arena.repositories.atividade;
 
 import java.util.List;
-
+import java.util.Collection;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -39,4 +41,7 @@ public interface AtividadeRepository extends JpaRepository<AtividadeModel, Long>
      */
     @Query("SELECT DISTINCT a FROM AtividadeModel a JOIN a.turma t JOIN t.estudantes e WHERE e.id = :estudanteId")
     List<AtividadeModel> findAllByEstudanteId(@Param("estudanteId") Long estudanteId);
+
+    @Query("select a from AtividadeModel a join fetch a.turma where a.id in :ids")
+    List<AtividadeModel> findAllComTurmaByIdIn(@Param("ids") Collection<Long> ids);
 }
